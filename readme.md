@@ -15,24 +15,23 @@ Response 200:
   "data": [
     {
       "id": number,
-      "networkId": string,
-      "tokenId": string,
-      "networkName": string,
-      "networkSymbol": string,
-      "networkType": string,
-      "tokenName": string,
-      "tokenSymbol": string,
-      "tokenAddress": string,
-      "tokenDecimals": number,
-      "tokenLogoUri": string,
-      "networkLogoUri": string
+      "network_id": string,
+      "token_id": string,
+      "network_name": string,
+      "network_symbol": string,
+      "network_type": string,
+      "token_name": string,
+      "token_symbol": string,
+      "token_address": string,
+      "token_decimals": number,
+      "token_logo_uri": string,
+      "network_logo_uri": string
     }
   ],
-  "traceId": string
+  "trace_id": string
 }
 ```
 ---
-
 
 ## Trading Operations
 
@@ -42,27 +41,26 @@ POST `/solver/indicative-quote`
 Request Body:
 ```json
 {
-  "fromTokenId": string,
-  "toTokenId": string,
-  "fromTokenAmount": string
+  "from_token_id": string,
+  "to_token_id": string,
+  "from_token_amount": string
 }
 ```
 
 Response 200:
-
 ```json
 {
   "data": {
-    "sessionId": string,
-    "bestQuote": string,
-    "pmmFinalists": [
+    "session_id": string,
+    "best_quote": string,
+    "pmm_finalists": [
       {
-        "pmmId": string,
-        "pmmReceivingAddress": string
+        "pmm_id": string,
+        "pmm_receiving_address": string
       }
     ]
   },
-  "traceId": string
+  "trace_id": string
 }
 ```
 > Should refresh the indicative quote each 5s for make sure you get the latest quote from PMM
@@ -75,15 +73,15 @@ POST `/trades/initiate`
 Request Body:
 ```json
 {
-  "sessionId": string, // from api `/solver/indicative-quote`
-  "fromUserAddress": string,
-  "toUserAddress": string,
-  "userRefundAddress": string,
-  "creatorPublicKey": string, // compressed public key of user
-  "tradeTimeout": number, // timestamp (seconds) PMM can not make payment after this. Normally is 2 hours, Optinal
-  "scriptTimeout": number, //  timestamp (seconds) User will be above to claim the fund back after this time. Normally is 24 hours, Optinal
-  "amountIn": string, // use ethers.parseUnits, then toString()
-  "minAmountOut": string,  // use ethers.parseUnits, then toString()
+  "session_id": string, // from api `/solver/indicative-quote`
+  "from_user_address": string,
+  "to_user_address": string,
+  "user_refund_address": string,
+  "creator_public_key": string, // compressed public key of user
+  "trade_timeout": number, // timestamp (seconds) PMM can not make payment after this. Normally is 2 hours, Optional
+  "script_timeout": number, //  timestamp (seconds) User will be above to claim the fund back after this time. Normally is 24 hours, Optional
+  "amount_in": string, // use ethers.parseUnits, then toString()
+  "min_amount_out": string  // use ethers.parseUnits, then toString()
 }
 ```
 
@@ -91,27 +89,27 @@ Response 200:
 ```json
 {
   "data": {
-    "tradeId": string,
-    "depositAddress": string,
-    "depositAmount": string,
+    "trade_id": string,
+    "deposit_address": string,
+    "deposit_amount": string,
     "payload": string,
-    "approveAddress": string,
-    "needApprove": boolean,
-    "approvePayload": string,
+    "approve_address": string,
+    "need_approve": boolean,
+    "approve_payload": string
   },
-  "traceId": string
+  "trace_id": string
 }
 ```
 
-- After got the response, start transfer correct token/amount to the depositAddress. And then the bitfi process will be triggered automatically
+- After got the response, start transfer correct token/amount to the deposit_address. And then the bitfi process will be triggered automatically
 ---
-### Notify Bitfi after transfer ( optinal )
-POST `/trades/${tradeId}/submit-tx`
+### Notify Bitfi after transfer (optional)
+POST `/trades/${trade_id}/submit-tx`
 
 Request Body:
 ```json
 {
-  "txId": string, // transactionId asset chain
+  "tx_id": string // transaction_id asset chain
 }
 ```
 
@@ -121,36 +119,35 @@ Response 200:
   "data": {
     "msg": string
   },
-  "traceId": string
+  "trace_id": string
 }
 ```
 ---
 
 ### Get Trade Information
-GET `/trades/{tradeId}`
+GET `/trades/{trade_id}`
 
 Response 200:
-
 ```json
 {
   "data": {
     "id": number,
-    "tradeId": string,
+    "trade_id": string,
     "status": string,
     "timestamp": number,
-    "fromUserAddress": string,
-    "toUserAddress": string,
+    "from_user_address": string,
+    "to_user_address": string,
     "events": [
       {
-        "tradeId": string,
+        "trade_id": string,
         "action": string,
-        "txId": string,
-        "blockNumber": number,
+        "tx_id": string,
+        "block_number": number,
         "timestamp": number,
-        "inputData": object
+        "input_data": object
       }
     ]
   },
-  "traceId": string
+  "trace_id": string
 }
 ```
