@@ -1,7 +1,7 @@
 # BitDEX API Integration Guide
 
 ## Authentication
-- We require the apiToken on query string for tracking and authorization the origin of request. Please contact @tuent for get the apiToken
+- We require the `api_token` on query string for tracking and authorization the origin of request. Please contact @tuent for get the `api_token`
 
 ## Endpoint
 https://api-stg.bitdex.xyz
