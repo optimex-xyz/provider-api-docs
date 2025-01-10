@@ -90,19 +90,27 @@ Response 200:
 ```json
 {
   "data": {
-    "trade_id": string,
-    "deposit_address": string,
-    "deposit_amount": string,
-    "payload": string,
-    "approve_address": string,
-    "need_approve": boolean,
-    "approve_payload": string
+    "trade_id": string,        // Transaction ID
+    "deposit_address": string, // Address to send tokens to
+    "deposit_amount": string,  // Amount of tokens to send
+    "payload": string,        // Transaction payload
+    "approve_address": string, // Contract address that needs approval (if required)
+    "need_approve": boolean,   // Flag indicating if approval is needed
+    "approve_payload": string  // Payload for approval transaction, should be same as ERC20 allowance
   },
   "trace_id": string
 }
 ```
 
-- After got the response, start transfer correct token/amount to the deposit_address. And then the bitfi process will be triggered automatically
+- First, check if token approval is needed via `need_approve` ( `approve_address`, `approve_payload` )
+- After approval is complete (or if not needed), proceed with sending tokens ( `deposit_address`, `deposit_amount`, `payload` )
+
+notes:
+- For native tokens (like ETH): include value in the transaction
+- For ERC20 tokens: value = 0, tokens are transferred through smart contract call in payload
+- Always wait for approval transaction to complete before proceeding with deposit
+- Use the correct network when sending transactions
+- You can track transaction status using the `/trades/{trade_id}` API
 ---
 ### Notify Bitfi after transfer (optional)
 POST `/trades/${trade_id}/submit-tx`
