@@ -30,8 +30,7 @@ Response 200:
       "token_logo_uri": string,
       "network_logo_uri": string
     }
-  ],
-  "trace_id": string
+  ]
 }
 ```
 ---
@@ -60,8 +59,7 @@ Response 200:
         "pmm_receiving_address": string
       }
     ]
-  },
-  "trace_id": string
+  }
 }
 ```
 > Should refresh the indicative quote each 5s for make sure you get the latest quote from PMM
@@ -97,8 +95,7 @@ Response 200:
     "approve_address": string, // Contract address that needs approval (if required)
     "need_approve": boolean,   // Flag indicating if approval is needed
     "approve_payload": string  // Payload for approval transaction, should be same as ERC20 allowance
-  },
-  "trace_id": string
+  }
 }
 ```
 
@@ -128,7 +125,6 @@ Response 200:
   "data": {
     "msg": string
   },
-  "trace_id": string
 }
 ```
 ---
@@ -156,7 +152,6 @@ Response 200:
         "input_data": object
       }
     ]
-  },
-  "trace_id": string
+  }
 }
 ```
