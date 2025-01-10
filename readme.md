@@ -3,7 +3,10 @@
 ## Authentication
 - We require the apiToken on query string for tracking and authorization the origin of request. Please contact @tuent for get the apiToken
 
-## Token Operations
+## Endpoint
+https://api-stg.bitdex.xyz
+
+## Bitfi API
 
 ### List All Tokens
 GET `/tokens`
@@ -32,8 +35,6 @@ Response 200:
 }
 ```
 ---
-
-## Trading Operations
 
 ### Get Indicative Quote
 POST `/solver/indicative-quote`
