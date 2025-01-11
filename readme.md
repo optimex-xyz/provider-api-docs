@@ -108,7 +108,7 @@ notes:
 - For ERC20 tokens: value = 0, tokens are transferred through smart contract call in payload
 - Always wait for approval transaction to complete before proceeding with deposit
 - Use the correct network when sending transactions
-- You can track transaction status using the `/trades/{trade_id}` API
+- You can track transaction status using the `/v1/trades/{trade_id}` API
 
 Example code:
 ```ts
@@ -137,7 +137,7 @@ const depositTxId = await wallet.sendTransaction(
 
 ---
 ### Notify Bitfi after transfer (optional)
-POST `/trades/${trade_id}/submit-tx`
+POST `/v1/trades/${trade_id}/submit-tx`
 
 Request Body:
 ```json
