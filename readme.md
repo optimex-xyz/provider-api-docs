@@ -135,59 +135,6 @@ const depositTxId = await wallet.sendTransaction(
 )
 ```
 
-Using abi ( only for EVM )
-```ts
-const provider = getProvider(BITFI_TESTNET)
-
-const vaultRegistryContract = VaultRegistry__factory.connect(VAULT_REGISTRY_ADDRESS, provider)
-const vaultContractAddress = await vaultRegistryContract.getVault(
-  ethers.toUtf8Bytes(fromToken.networkId),
-  ethers.toUtf8Bytes(fromToken.tokenAddress)
-)
-
-const assetProvider = getProvider(fromToken.networkId)
-
-if (fromToken.tokenAddress !== 'native') {
-  const erc20Interface = ERC20__factory.createInterface()
-  const approveData = erc20Interface.encodeFunctionData('approve', [
-    vaultContractAddress,
-    ethers.parseUnits(amountIn, fromToken.tokenDecimals),
-  ])
-
-  const approveTx = await wallet.sendTransaction(fromToken.tokenAddress, 0, {
-    data: approveData,
-  })
-
-  await assetProvider.waitForTransaction(approveTx)
-}
-
-let dataContract
-
-if (fromToken.tokenAddress !== 'native') {
-  dataContract = TokenVault__factory.createInterface().encodeFunctionData('deposit', [
-    ensureHexPrefix(ephemeralL2Address),
-    tradeInput,
-    tradeDetail,
-  ])
-} else {
-  dataContract = NativeVault__factory.createInterface().encodeFunctionData('deposit', [
-    ensureHexPrefix(ephemeralL2Address),
-    tradeInput,
-    tradeDetail,
-  ])
-}
-
-const value = fromToken.tokenAddress === 'native' ? ethers.parseUnits(amountIn, fromToken.tokenDecimals) : 0n
-const depositTxId = await wallet.sendTransaction(
-  vaultContractAddress,
-  value,
-  {
-    data: dataContract,
-  },
-  fromToken.networkId
-)
-```
-
 ---
 ### Notify Bitfi after transfer (optional)
 POST `/trades/${trade_id}/submit-tx`
@@ -246,12 +193,7 @@ Response 200:
 {
   "data": {
     "config": {
-      "bitfi_rpc": string,
-      "vault_registry_address": string,
       "protocol_fee": number,
-      "vault_adress": {
-        "token_id": string
-      },
       "tokens": [
         {
           "id": number,
