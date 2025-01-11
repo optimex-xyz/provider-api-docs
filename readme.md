@@ -9,7 +9,7 @@ https://api-stg.bitdex.xyz
 ## Bitfi API
 
 ### List All Tokens
-GET `/tokens`
+GET `/v1/tokens`
 
 Response 200:
 
@@ -36,7 +36,7 @@ Response 200:
 ---
 
 ### Get Indicative Quote
-POST `/solver/indicative-quote`
+POST `/v1/solver/indicative-quote`
 
 Request Body:
 ```json
@@ -68,7 +68,7 @@ Response 200:
 ---
 ### Initiate Trade
 
-POST `/trades/initiate`
+POST `/v1/trades/initiate`
 
 Request Body:
 ```json
@@ -78,8 +78,8 @@ Request Body:
   "to_user_address": string,
   "user_refund_address": string,
   "creator_public_key": string, // compressed public key of user
-  "trade_timeout": number, // timestamp (seconds) PMM can not make payment after this. Normally is 2 hours, Optional
-  "script_timeout": number, //  timestamp (seconds) User will be above to claim the fund back after this time. Normally is 24 hours, Optional
+  "trade_timeout": number, // Optional, timestamp (seconds) PMM can not make payment after this. Normally is 2 hours,
+  "script_timeout": number, //  Optional, timestamp (seconds) User will be above to claim the fund back after this time. Normally is 24 hours
   "amount_in": string, // use ethers.parseUnits, then toString()
   "min_amount_out": string  // use ethers.parseUnits, then toString()
 }
@@ -131,7 +131,7 @@ Response 200:
 ---
 
 ### Get Trade Information
-GET `/trades/{trade_id}`
+GET `/v1/trades/{trade_id}`
 
 Response 200:
 ```json
