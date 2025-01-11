@@ -110,7 +110,7 @@ notes:
 - Use the correct network when sending transactions
 - You can track transaction status using the `/trades/{trade_id}` API
 
-Example code ( recommend ):
+Example code:
 ```ts
 const { depositAddress, payload, approveAddress, needApprove, approvePayload } =
   await initTradeMutation.mutateAsync(initPayload)
