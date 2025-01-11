@@ -1,7 +1,7 @@
 # BitDEX API Integration Guide
 
 ## Authentication
-- We require the `api_token` on query string for tracking and authorization the origin of request. Please contact @tuent for get the `api_token`
+- We require the `x-api-key` on query string for tracking and authorization the origin of request. Please contact @tuent for get the `x-api-key`
 
 ## Endpoint
 https://api-stg.bitdex.xyz
@@ -53,6 +53,7 @@ Response 200:
   "data": {
     "session_id": string,
     "best_quote": string,
+    "protocol_fee": number,
     "pmm_finalists": [
       {
         "pmm_id": string,
@@ -88,7 +89,7 @@ Response 200:
 ```json
 {
   "data": {
-    "trade_id": string,        // Transaction ID
+    "trade_id": string,        // Trade ID
     "deposit_address": string, // Address to send tokens to
     "deposit_amount": string,  // Amount of tokens to send
     "payload": string,        // Transaction payload
@@ -138,6 +139,7 @@ Response 200:
   "data": {
     "id": number,
     "trade_id": string,
+    "session_id": string,
     "status": string,
     "timestamp": number,
     "from_user_address": string,
