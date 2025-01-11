@@ -109,6 +109,85 @@ notes:
 - Always wait for approval transaction to complete before proceeding with deposit
 - Use the correct network when sending transactions
 - You can track transaction status using the `/trades/{trade_id}` API
+
+Example code ( recommend ):
+```ts
+const { depositAddress, payload, approveAddress, needApprove, approvePayload } =
+  await initTradeMutation.mutateAsync(initPayload)
+
+if (needApprove) {
+  const approveTx = await wallet.sendTransaction(approveAddress, 0, { data: approvePayload })
+
+  const assetProvider = getProvider(fromToken.networkId)
+
+  await assetProvider.waitForTransaction(approveTx)
+}
+
+const value = fromToken.tokenAddress === 'native' ? ethers.parseUnits(amountIn, fromToken.tokenDecimals) : 0n
+
+const depositTxId = await wallet.sendTransaction(
+  depositAddress,
+  value,
+  {
+    data: payload,
+  },
+  fromToken.networkId
+)
+```
+
+Using abi ( only for EVM )
+```ts
+const provider = getProvider(BITFI_TESTNET)
+
+const vaultRegistryContract = VaultRegistry__factory.connect(VAULT_REGISTRY_ADDRESS, provider)
+const vaultContractAddress = await vaultRegistryContract.getVault(
+  ethers.toUtf8Bytes(fromToken.networkId),
+  ethers.toUtf8Bytes(fromToken.tokenAddress)
+)
+
+const assetProvider = getProvider(fromToken.networkId)
+
+if (fromToken.tokenAddress !== 'native') {
+  const erc20Interface = ERC20__factory.createInterface()
+  const approveData = erc20Interface.encodeFunctionData('approve', [
+    vaultContractAddress,
+    ethers.parseUnits(amountIn, fromToken.tokenDecimals),
+  ])
+
+  const approveTx = await wallet.sendTransaction(fromToken.tokenAddress, 0, {
+    data: approveData,
+  })
+
+  await assetProvider.waitForTransaction(approveTx)
+}
+
+let dataContract
+
+if (fromToken.tokenAddress !== 'native') {
+  dataContract = TokenVault__factory.createInterface().encodeFunctionData('deposit', [
+    ensureHexPrefix(ephemeralL2Address),
+    tradeInput,
+    tradeDetail,
+  ])
+} else {
+  dataContract = NativeVault__factory.createInterface().encodeFunctionData('deposit', [
+    ensureHexPrefix(ephemeralL2Address),
+    tradeInput,
+    tradeDetail,
+  ])
+}
+
+const value = fromToken.tokenAddress === 'native' ? ethers.parseUnits(amountIn, fromToken.tokenDecimals) : 0n
+const depositTxId = await wallet.sendTransaction(
+  vaultContractAddress,
+  value,
+  {
+    data: dataContract,
+  },
+  fromToken.networkId
+)
+```
+
 ---
 ### Notify Bitfi after transfer (optional)
 POST `/trades/${trade_id}/submit-tx`
@@ -154,6 +233,48 @@ Response 200:
         "input_data": object
       }
     ]
+  }
+}
+```
+---
+
+### Get Trade Information
+GET `/v1/protocol-info`
+
+Response 200:
+```json
+{
+  "data": {
+    "config": {
+      "bitfi_rpc": string,
+      "vault_registry_address": string,
+      "protocol_fee": number,
+      "vault_adress": {
+        "token_id": string
+      },
+      "tokens": [
+        {
+          "id": number,
+          "network_id": string,
+          "token_id": string,
+          "network_name": string,
+          "network_symbol": string,
+          "network_type": string,
+          "token_name": string,
+          "token_symbol": string,
+          "token_address": string,
+          "token_decimals": number,
+          "token_logo_uri": string,
+          "network_logo_uri": string
+        }
+      ],
+      "token_pairs": [
+        {
+          "from_token_id": string,
+          "to_token_id": string,
+        }
+      ]
+    }
   }
 }
 ```
