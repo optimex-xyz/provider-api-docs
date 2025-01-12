@@ -15,22 +15,39 @@ Response 200:
 
 ```json
 {
-  "data": [
-    {
-      "id": number,
-      "network_id": string,
-      "token_id": string,
-      "network_name": string,
-      "network_symbol": string,
-      "network_type": string,
-      "token_name": string,
-      "token_symbol": string,
-      "token_address": string,
-      "token_decimals": number,
-      "token_logo_uri": string,
-      "network_logo_uri": string
-    }
-  ]
+  "data": {
+    "supported_networks": [
+      {
+        "network_id": string,    // e.g., "ethereum", "bitcoin"
+        "name": string,          // e.g., "Ethereum", "Bitcoin"
+        "symbol": string,        // e.g., "ETH", "BTC"
+        "type": string,          // e.g., "EVM", "UTXO"
+        "logo_uri": string       // Network logo URL
+      }
+    ],
+    "tokens": [
+      {
+        "network_id": string,        // e.g., "ethereum", "solana"
+        "token_id": string,          // e.g., "usdt" (same across networks)
+        "network_name": string,      // e.g., "Ethereum", "Solana"
+        "network_symbol": string,    // e.g., "ETH", "SOL"
+        "network_type": string,      // e.g., "EVM", "SOL"
+        "token_name": string,        // e.g., "Tether USD"
+        "token_symbol": string,      // e.g., "USDT"
+        "token_address": string,     // Contract/mint address
+        "token_decimals": number,    // e.g., 6 for USDT
+        "token_logo_uri": string,    // Token logo URL
+        "network_logo_uri": string   // Network logo URL
+      }
+    ],
+    "pairs": [
+      {
+        "from_token_id": string,     // e.g., "usdt"
+        "to_token_id": string,       // e.g., "btc"
+        "is_active": boolean         // Whether pair is available for trading
+      }
+    ]
+  }
 }
 ```
 ---
