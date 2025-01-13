@@ -1,7 +1,7 @@
 # BitDEX API Integration Guide
 
 ## Authentication
-- We require the `x-api-key` on query string for tracking and authorization the origin of request. Please contact @tuent for get the `x-api-key`
+- We require the `x-api-key` on header for tracking and authorization the origin of request. Please contact @tuent for get the `x-api-key`
 
 ## Endpoint
 https://api-stg.bitdex.xyz
