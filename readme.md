@@ -1,7 +1,6 @@
 # BitFi API Integration Guide
 
 ## Table of Contents
-- [Overview](#overview)
 - [Authentication](#authentication)
 - [Base URLs](#base-urls)
 - [Required Trading Flow](#required-trading-flow)
