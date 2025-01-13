@@ -70,6 +70,7 @@ Response 200:
   "data": {
     "session_id": string,
     "best_quote": string,
+    "solver_address": string,
     "protocol_fee": number,
     "pmm_finalists": [
       {
