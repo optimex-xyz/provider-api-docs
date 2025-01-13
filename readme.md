@@ -159,7 +159,7 @@ POST `/v1/trades/${trade_id}/submit-tx`
 Request Body:
 ```json
 {
-  "tx_id": string // transaction_id asset chain
+  "tx_id": string // transaction_id asset chain, with 0x prefix
 }
 ```
 
