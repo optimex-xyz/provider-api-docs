@@ -1,16 +1,29 @@
-# BitFi API Integration Guide
+# PetaFi API Integration Guide
 
 ## Table of Contents
-- [Authentication](#authentication)
-- [Base URLs](#base-urls)
-- [Required Trading Flow](#required-trading-flow)
-- [Rate Limiting](#rate-limiting)
-- [Endpoints](#endpoints)
-  - [Token Management](#token-management)
-  - [Trading Operations](#trading-operations)
-  - [Protocol Information](#protocol-information)
-- [Error Handling](#error-handling)
-- [Code Examples](#code-examples)
+- [PetaFi API Integration Guide](#petafi-api-integration-guide)
+  - [Table of Contents](#table-of-contents)
+  - [Authentication](#authentication)
+  - [Base URLs](#base-urls)
+  - [Required Trading Flow](#required-trading-flow)
+    - [1. Get Trading Quote](#1-get-trading-quote)
+    - [2. Initiate Trade](#2-initiate-trade)
+    - [3. Token Approval (if needed)](#3-token-approval-if-needed)
+    - [4. Send Tokens](#4-send-tokens)
+    - [5. Submit Transaction ID (Optional)](#5-submit-transaction-id-optional)
+  - [Rate Limiting](#rate-limiting)
+  - [Endpoints](#endpoints)
+    - [Token Management](#token-management)
+      - [List All Tokens and Pairs](#list-all-tokens-and-pairs)
+    - [Trading Operations](#trading-operations)
+      - [Get Indicative Quote](#get-indicative-quote)
+      - [Initiate Trade](#initiate-trade)
+      - [Get Trade Status](#get-trade-status)
+      - [Submit Transaction (Optional)](#submit-transaction-optional)
+    - [Protocol Information](#protocol-information)
+  - [Error Handling](#error-handling)
+  - [Code Examples](#code-examples)
+    - [Complete Trading Flow Example](#complete-trading-flow-example)
 
 
 ## Authentication
@@ -328,7 +341,7 @@ const initiateTrade = async (quoteData) => {
     amount_in: "1000000",
     min_amount_out: quoteData.best_quote
   });
-  
+
   const { depositAddress, payload, approveAddress, needApprove, approvePayload } = trade.data;
 
   // Handle approval if needed
@@ -342,8 +355,8 @@ const initiateTrade = async (quoteData) => {
   }
 
   // Send the trade transaction
-  const value = fromToken.tokenAddress === 'native' 
-    ? ethers.parseUnits(amountIn, fromToken.tokenDecimals) 
+  const value = fromToken.tokenAddress === 'native'
+    ? ethers.parseUnits(amountIn, fromToken.tokenDecimals)
     : 0n;
 
   const depositTx = await wallet.sendTransaction(
