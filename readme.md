@@ -1,7 +1,7 @@
-# PetaFi API Integration Guide
+# Optimex API Integration Guide
 
 ## Table of Contents
-- [PetaFi API Integration Guide](#petafi-api-integration-guide)
+- [Optimex API Integration Guide](#optimex-api-integration-guide)
   - [Table of Contents](#table-of-contents)
   - [Authentication](#authentication)
   - [Base URLs](#base-urls)
