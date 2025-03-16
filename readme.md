@@ -158,16 +158,27 @@ Get trading quote with current rates. Quotes should be refreshed every 5 seconds
 {
   "from_token_id": string,
   "to_token_id": string,
-  "from_token_amount": string
+  "from_token_amount": string,
+  "affiliate_fee_bps": string
 }
 ```
 
+eg
+```json
+{
+  "from_token_id": "tBTC",
+  "to_token_id": "ETH",
+  "from_token_amount": "100000",
+  "affiliate_fee_bps": "0"
+}
+```
 **Response** `200`
 ```json
 {
   "data": {
     "session_id": string,
     "best_quote": string,
+    "best_quote_after_fees": string,
     "protocol_fee": number,
     "pmm_finalists": [
       {
@@ -176,6 +187,42 @@ Get trading quote with current rates. Quotes should be refreshed every 5 seconds
       }
     ]
   }
+}
+```
+
+eg
+```json
+{
+    "data": {
+        "solver_address": "0x38356c579c3cf10484dd0097295fc5c4d565c7e9",
+        "session_id": "0xe99be308c02b4b2fb4208591c77214c0a92d0666a97fb29dc3ebda1668fc6b91",
+        "from_token": {
+            "token_id": "tBTC",
+            "chain": "bitcoin_testnet",
+            "address": "native",
+            "fee_in": false,
+            "fee_out": false
+        },
+        "to_token": {
+            "token_id": "ETH",
+            "chain": "ethereum_sepolia",
+            "address": "native",
+            "fee_in": true,
+            "fee_out": true
+        },
+        "amount_after_fees": "100000",
+        "amount_before_fees": "100000",
+        "best_quote": "43776947878488790",
+        "best_quote_after_fees": "43667505508792569",
+        "pmm_finalists": [
+            {
+                "pmm_id": "apollo",
+                "pmm_receiving_address": "tb1plfavg9saj82waxnmeyhzhnl4emvh4v2yg7nquzr3xnsalu44nc5s70aeyf"
+            }
+        ],
+        "protocol_fee": 25
+    },
+    "traceId": "28b9e7fed7abdb9e86d72f7ec9400f96"
 }
 ```
 
@@ -190,14 +237,31 @@ Start a new trade using a quote session.
 ```json
 {
   "session_id": string,          // From quote response
-  "from_user_address": string,   // Sending address
+  "from_user_address": string,   // compressPublicKey for BTC and SOLANA, address for EVM
+  "amount_in": string,           // Amount in smallest unit
+  "min_amount_out": string,      // Minimum acceptable output
   "to_user_address": string,     // Receiving address
   "user_refund_address": string, // Refund address if trade fails
   "creator_public_key": string,  // Compressed public key
   "trade_timeout": number,       // Optional, defaults to 2 hours
   "script_timeout": number,      // Optional, defaults to 24 hours
-  "amount_in": string,           // Amount in smallest unit
-  "min_amount_out": string       // Minimum acceptable output
+  "from_wallet_address": string  // creator address
+}
+```
+
+eg
+```json
+{
+    "session_id": "0xf3add36ff6e9069a730e4fecd1a3ef7870c5fbef5b02edddbb77569d8f4892c6",
+    "from_user_address": "03851d846543cd6749d34cab0681adebedd076e1f24c4dcb5e7a2139a1aaf0487c",
+    "amount_in": "1000000",
+    "min_amount_out": "304538000000000000",
+    "to_user_address": "0x19ce4de99ce88bc4a759e8dbdec42724eecb666f",
+    "user_refund_address": "03851d846543cd6749d34cab0681adebedd076e1f24c4dcb5e7a2139a1aaf0487c",
+    "creator_public_key": "03851d846543cd6749d34cab0681adebedd076e1f24c4dcb5e7a2139a1aaf0487c",
+    "script_timeout": 1742276214,
+    "trade_timeout": 1742189814,
+    "from_wallet_address": "tb1pr00d3pkyhp7aghwk0y8g7mjsau9hkll3m8djdwqw4eukmw79ym2qp97t3v"
 }
 ```
 
@@ -207,12 +271,18 @@ Start a new trade using a quote session.
   "data": {
     "trade_id": string,
     "deposit_address": string,
-    "deposit_amount": string,
     "payload": string,
-    "approve_address": string,
-    "need_approve": boolean,
-    "approve_payload": string
   }
+}
+```
+
+eg
+```json
+{
+  "data": {
+    "trade_id":"0x113def711d43b72fcc7981a656e51556c597fb9187e56fcb0427c26c6946a254",
+    "deposit_address":"tb1pw0ydz5u96ajxaj8wtc4cd6uwg92mgcum3x84ej0n9qwpamslgzcslfzdkt"
+  },
 }
 ```
 
