@@ -8,11 +8,8 @@ All API requests require an API key in the header.
 GET /v1/tokens
 x-api-key: your_api_key
 ```
-- Not required for now
 
 ### Base URLs
-- Staging: `https://api-stg.bitdex.xyz`
-- Production: `https://api.optimex.xyz`
 
 ### Required Trading Flow
 
