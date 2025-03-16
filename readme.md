@@ -282,6 +282,7 @@ eg
   "data": {
     "trade_id":"0x113def711d43b72fcc7981a656e51556c597fb9187e56fcb0427c26c6946a254",
     "deposit_address":"tb1pw0ydz5u96ajxaj8wtc4cd6uwg92mgcum3x84ej0n9qwpamslgzcslfzdkt"
+    "payload": "" # only exist if trade from EVM
   },
 }
 ```
