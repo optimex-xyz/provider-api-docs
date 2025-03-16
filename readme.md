@@ -43,7 +43,7 @@ x-api-key: your_api_key
 ## Base URLs
 
 - Staging: `https://api-stg.bitdex.xyz`
-- Production: `https://api.petafi.xyz`
+- Production: `https://api.optimex.xyz`
 
 ## Required Trading Flow
 
