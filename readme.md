@@ -5,7 +5,7 @@
 ### Authentication
 All API requests require an API key in the header.
 ```http
-GET /v1/tokens
+GET /v1/provider/tokens
 x-api-key: your_api_key
 ```
 
@@ -22,52 +22,52 @@ sequenceDiagram
     participant Blockchain
 
     Note over Client: 1. List Available Tokens
-    Client->>Optimex: GET /v1/tokens (List tokens and pairs)
+    Client->>Optimex: GET /v1/provider/tokens (List tokens and pairs)
     Optimex-->>Client: Return available tokens and pairs
-    
+
     Note over Client: 2. Get Trading Quote
     loop Quote refreshing (every 60 seconds)
-        Client->>Optimex: POST /v1/solver/indicative-quote
+        Client->>Optimex: POST /v1/provider/solver/indicative-quote
         Optimex-->>Client: Return quote with session_id
     end
-    
+
     Note over Client: 3. Initiate Trade
-    Client->>Optimex: POST /v1/trades/initiate
+    Client->>Optimex: POST /v1/provider/trades/initiate
     Optimex-->>Client: Return trade details (deposit_address, need_approve, etc.)
-    
+
     alt Token approval needed
         Note over Client: 4a. Submit Token Approval
         Client->>Blockchain: Submit approval transaction
         Blockchain-->>Client: Approval confirmed
     end
-    
+
     Note over Client: 4b. Send Tokens
     Client->>Blockchain: Send tokens to deposit_address
     Blockchain-->>Client: Transaction confirmed
-    
+
     opt Optional: Submit transaction ID
         Note over Client: 5. [Optional] Submit Transaction ID
-        Client->>Optimex: POST /v1/trades/{trade_id}/submit-tx
+        Client->>Optimex: POST /v1/provider/trades/{trade_id}/submit-tx
         Optimex-->>Client: Acknowledge tx submission
     end
 ```
 
 #### Step 1: Get Available Tokens
 ```http
-GET /v1/tokens
+GET /v1/provider/tokens
 ```
 Returns all supported networks, tokens, and trading pairs.
 
 #### Step 2: Get Trading Quote
 ```http
-POST /v1/solver/indicative-quote
+POST /v1/provider/solver/indicative-quote
 ```
 - Refresh every 60 seconds while user is deciding
 - Provides session_id needed for trade initiation
 
 #### Step 3: Initiate Trade
 ```http
-POST /v1/trades/initiate
+POST /v1/provider/trades/initiate
 ```
 - Uses session_id from latest quote
 - Returns trade details and deposit information
@@ -84,7 +84,7 @@ POST /v1/trades/initiate
 
 #### Step 5: Submit Transaction ID (Optional)
 ```http
-POST /v1/trades/{trade_id}/submit-tx
+POST /v1/provider/trades/{trade_id}/submit-tx
 ```
 - Optional but recommended
 - Helps with faster processing and better tracking
@@ -95,7 +95,7 @@ POST /v1/trades/{trade_id}/submit-tx
 
 #### List All Tokens and Pairs
 ```http
-GET /v1/tokens
+GET /v1/provider/tokens
 ```
 
 **Response** `200` (Example)
@@ -141,7 +141,7 @@ GET /v1/tokens
 
 #### Get Indicative Quote
 ```http
-POST /v1/solver/indicative-quote
+POST /v1/provider/solver/indicative-quote
 ```
 
 **Request Body**
@@ -174,7 +174,7 @@ POST /v1/solver/indicative-quote
 
 #### Initiate Trade
 ```http
-POST /v1/trades/initiate
+POST /v1/provider/trades/initiate
 ```
 
 **Request Body**
@@ -206,7 +206,7 @@ POST /v1/trades/initiate
 
 #### Get Trade Status
 ```http
-GET /v1/trades/{trade_id}
+GET /v1/provider/trades/{trade_id}
 ```
 
 **Response** `200` (Example)
@@ -236,7 +236,7 @@ GET /v1/trades/{trade_id}
 
 #### Submit Transaction (Optional)
 ```http
-POST /v1/trades/{trade_id}/submit-tx
+POST /v1/provider/trades/{trade_id}/submit-tx
 ```
 
 **Request Body**
@@ -260,7 +260,7 @@ POST /v1/trades/{trade_id}/submit-tx
 ```typescript
 // Get quote every 60 seconds while user is deciding
 const getQuote = async () => {
-  const quote = await api.post('/v1/solver/indicative-quote', {
+  const quote = await api.post('/v1/provider/solver/indicative-quote', {
     from_token_id: "tBTC",
     to_token_id: "ETH",
     from_token_amount: "100000"
@@ -270,7 +270,7 @@ const getQuote = async () => {
 
 // Initialize trade once user confirms
 const initiateTrade = async (quoteData) => {
-  const trade = await api.post('/v1/trades/initiate', {
+  const trade = await api.post('/v1/provider/trades/initiate', {
     session_id: quoteData.session_id,
     from_user_address: "0x...",
     to_user_address: "0x...",
@@ -287,7 +287,7 @@ const initiateTrade = async (quoteData) => {
   );
 
   // Optional: Notify about transaction
-  await api.post(`/v1/trades/${trade.data.trade_id}/submit-tx`, {
+  await api.post(`/v1/provider/trades/${trade.data.trade_id}/submit-tx`, {
     tx_id: depositTx.hash
   });
 
