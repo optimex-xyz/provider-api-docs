@@ -1,7 +1,132 @@
 [
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "pAddress",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "tokenAddress",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [],
+    "name": "AddressZero",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ClaimNotAvailable",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "DuplicatedDeposit",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ECDSAInvalidSignature",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "length",
+        "type": "uint256"
+      }
+    ],
+    "name": "ECDSAInvalidSignatureLength",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "s",
+        "type": "bytes32"
+      }
+    ],
+    "name": "ECDSAInvalidSignatureS",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "FailedCall",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "balance",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "needed",
+        "type": "uint256"
+      }
+    ],
+    "name": "InsufficientBalance",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidAddressLength",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidDepositAmount",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidDepositToken",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidMPCSign",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidPresign",
+    "type": "error"
+  },
+  {
     "inputs": [],
     "name": "InvalidShortString",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidTimeout",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "ReentrancyGuardReentrantCall",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      }
+    ],
+    "name": "SafeERC20FailedOperation",
     "type": "error"
   },
   {
@@ -13,6 +138,21 @@
       }
     ],
     "name": "StringTooLong",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "Timeout",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TradeDetailNotMatched",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "Unauthorized",
     "type": "error"
   },
   {
@@ -127,6 +267,25 @@
     "inputs": [
       {
         "indexed": true,
+        "internalType": "address",
+        "name": "operator",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newProtocol",
+        "type": "address"
+      }
+    ],
+    "name": "ProtocolUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
         "internalType": "bytes32",
         "name": "tradeId",
         "type": "bytes32"
@@ -164,12 +323,25 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "pFeeAmount",
+        "name": "totalFeeAmount",
         "type": "uint256"
       }
     ],
     "name": "Settled",
     "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "LOCKING_TOKEN",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
   },
   {
     "inputs": [
@@ -212,6 +384,90 @@
       }
     ],
     "name": "claim",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "ephemeralL2Address",
+        "type": "address"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "sessionId",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "solver",
+            "type": "address"
+          },
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "amountIn",
+                "type": "uint256"
+              },
+              {
+                "internalType": "bytes[3]",
+                "name": "fromChain",
+                "type": "bytes[3]"
+              },
+              {
+                "internalType": "bytes[3]",
+                "name": "toChain",
+                "type": "bytes[3]"
+              }
+            ],
+            "internalType": "struct ITypes.TradeInfo",
+            "name": "tradeInfo",
+            "type": "tuple"
+          }
+        ],
+        "internalType": "struct IBaseVault.TradeInput",
+        "name": "input",
+        "type": "tuple"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timeout",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "mpc",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "ephemeralAssetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "refundAddress",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct IBaseVault.TradeDetail",
+        "name": "data",
+        "type": "tuple"
+      }
+    ],
+    "name": "deposit",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -279,6 +535,32 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "protocol",
+    "outputs": [
+      {
+        "internalType": "contract IProtocol",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newProtocol",
+        "type": "address"
+      }
+    ],
+    "name": "setProtocol",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "bytes32",
@@ -287,7 +569,7 @@
       },
       {
         "internalType": "uint256",
-        "name": "protocolFee",
+        "name": "totalFee",
         "type": "uint256"
       },
       {
