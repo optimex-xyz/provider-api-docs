@@ -182,10 +182,11 @@ POST /v1/provider/trades/initiate
 {
   "session_id": string,          // From quote response
   "from_user_address": string,   // compressPublicKey for BTC and SOLANA, address for EVM
-  "amount_in": string,           // Amount in smallest unit
-  "min_amount_out": string,      // Minimum acceptable output
+  "amount_in": string,           // Amount in smallest unit, bitint string, ex: 0.01 ETH -> "10000000000000000"
+  "min_amount_out": string,      // Minimum acceptable output, bigint string
   "to_user_address": string,     // Receiving address
   "user_refund_address": string, // Refund address if trade fails
+  "user_refund_pubkey": string, // Refund pubkey if trade fails, in btc is pubkey and in evm is address
   "creator_public_key": string,  // Compressed public key
   "trade_timeout": number,       // Optional, defaults to 2 hours
   "script_timeout": number,      // Optional, defaults to 24 hours
