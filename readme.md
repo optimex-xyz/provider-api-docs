@@ -219,23 +219,68 @@ GET /v1/trades/{trade_id}
 ```json
 {
   "data": {
-    "id": number,
-    "trade_id": string,
-    "session_id": string,
-    "status": string,            // Current trade status
-    "timestamp": number,
-    "from_user_address": string,
-    "to_user_address": string,
-    "events": [
+    "trade_id": string,                    // Unique trade identifier
+    "session_id": string,                  // Session ID from quote
+    "solver_address": string,              // Solver contract address
+    "from_token": {
+      "token_id": string,                  // Token identifier (e.g., "ETH")
+      "chain": string,                     // Chain name (e.g., "ethereum_sepolia")
+      "address": string,                   // Token contract address or "native"
+      "fee_in": boolean,                   // Whether token can be used for fees
+      "fee_out": boolean                   // Whether fees can be paid in this token
+    },
+    "to_token": {
+      "token_id": string,                  // Token identifier (e.g., "tBTC")
+      "chain": string,                     // Chain name (e.g., "bitcoin_testnet")
+      "address": string,                   // Token contract address or "native"
+      "fee_in": boolean,                   // Whether token can be used for fees
+      "fee_out": boolean                   // Whether fees can be paid in this token
+    },
+    "amount_before_fees": string,          // Original amount before fees
+    "amount_after_fees": string,           // Amount after deducting fees
+    "from_user_address": string,           // Sender's address
+    "user_receiving_address": string,      // Recipient's address
+    "script_timeout": number,              // Script expiration timestamp
+    "protocol_fee_in_bps": string,         // Protocol fee in basis points
+    "affiliate_fee_in_bps": string,        // Affiliate fee in basis points
+    "total_fee": string,                   // Total fee amount
+    "protocol_fee": string,                // Protocol fee amount
+    "affiliate_fee": string,               // Affiliate fee amount
+    "mpc_asset_chain_pubkey": string,      // MPC public key for asset chain
+    "best_indicative_quote": string,       // Best quote before confirmation
+    "display_indicative_quote": string,    // Displayed quote amount
+    "pmm_finalists": [
       {
-        "trade_id": string,
-        "action": string,        // Action performed
-        "tx_id": string,         // Transaction ID
-        "block_number": number,
-        "timestamp": number,
-        "input_data": object     // Additional data about the event
+        "pmm_id": string,                  // Market maker identifier
+        "pmm_receiving_address": string    // Market maker's receiving address
       }
-    ]
+    ],
+    "settlement_quote": string,            // Final settlement amount
+    "receiving_amount": string,            // Amount to be received
+    "selected_pmm": string,                // Selected market maker ID
+    "selected_pmm_receiving_address": string, // Selected market maker's address
+    "selected_pmm_operator": string,       // Market maker operator address
+    "selected_pmm_sig_deadline": number,   // Signature deadline timestamp
+    "commitment_retries": number,          // Number of commitment retries
+    "commited_signature": string,          // Commitment signature
+    "trade_timeout": number,               // Trade expiration timestamp
+    "user_deposit_tx": string,             // User's deposit transaction hash
+    "deposit_vault": string,               // Deposit vault address
+    "payment_bundle": {
+      "trade_ids": [string],              // Array of related trade IDs
+      "settlement_tx": string,             // Settlement transaction data
+      "signature": string,                 // Payment bundle signature
+      "start_index": number,               // Starting index
+      "pmm_id": string,                    // Market maker ID
+      "signed_at": number                  // Timestamp of signature
+    },
+    "user_signature": string,              // User's signature
+    "trade_submission_tx": string,         // Trade submission transaction hash
+    "trade_select_pmm_tx": string,        // PMM selection transaction hash
+    "trade_make_payment_tx": string,       // Payment transaction hash
+    "state": string,                       // Current trade state
+    "last_update_msg": string,             // Last status update message
+    "version": number                      // API version
   }
 }
 ```
