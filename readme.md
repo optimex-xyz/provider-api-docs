@@ -285,6 +285,28 @@ GET /v1/trades/{trade_id}
 }
 ```
 
+*List of current states in the solver*
+Note: These states are internal to the solver design, and are different from trade stages on smart contracts
+
+```go
+	TradeStateInit                            = "Init"                            // Initial state after session creation
+	TradeStateIndicated                       = "Indicated"                       // After indicative quotes are fetched
+	TradeStateUserConfirmed                   = "UserConfirmed"                   // After users submit or update trade info
+	TradeStateReadyToSubmitToL2               = "ReadyToSubmitToL2"               // After the trade info submitted by users is validated and deposit tx is mined
+	TradeStateL2SubmissionStarted             = "L2SubmissionStarted"             // When the process to submit data to L2 started
+	TradeStateInfoSubmittedToL2               = "TradeInfoSubmittedToL2"          // After trade info is submitted to the Router contract by the solver
+	TradeStateDepositConfirmed                = "DepositConfirmed"                // Deposit is confirmed by MPC (ConfirmDeposit event is fired from Router contract)
+	TradeStateRequestForCommitmentStarted     = "RequestForCommitmentStarted"     // When the process of requesting for commitments from pmms started
+	TradeStateCommitted                       = "Committed"                       // When a PMM commits a quote for the trade (PMM sent committed quote signature)
+	TradeStateWaitToRetryCommit               = "WaitToRetryCommit"               // When a trade failed to get a commitment from pmms, after some time the trade will transit to DepositConfirmed state to get ready to next commit attempt
+	TradeStateStartedCommitmentSubmissionToL2 = "StartedCommitmentSubmissionToL2" // When the operator started its process to submit commitment data to L2
+	TradeStateReadyForPayment                 = "ReadyForPayment"                 // When commitment for the trade is submitted to L2, in this state, waiting PMM to make payment
+	TradeStateFailed                          = "Failed"                          // Trade is failed during the protocol process
+	TradeStateUserCancelled                   = "UserCancelled"                   // When the trade is cancelled by the user
+	TradeStatePaymentBundleSubmitted          = "PaymentBundleSubmitted"          // When the trade payment bundle information is submitted to L2
+	TradeStatePaymentConfirmed                = "PaymentConfirmed"                // When the trade payment is confirmed by MPC that PMM has made payment
+	TradeStateDone                            = "Done"
+```
 #### Submit Transaction (Optional)
 ```http
 POST /v1/trades/{trade_id}/submit-tx
@@ -302,6 +324,27 @@ POST /v1/trades/{trade_id}/submit-tx
 {
   "data": {
     "msg": string  // Confirmation message
+  }
+}
+```
+
+#### Get Trade Estimation
+```http
+GET /v1/trades/estimate
+```
+
+**Query Parameters**
+```
+from_token: string    // Source token identifier (e.g., "ETH")
+to_token: string      // Destination token identifier (e.g., "tBTC")
+```
+
+**Response** `200` (Example)
+```json
+{
+  "data": {
+    "estimated_time": number,     // Estimated completion time in seconds
+    "updated_at": string         // Last update timestamp in ISO format
   }
 }
 ```
