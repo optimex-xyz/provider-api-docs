@@ -182,16 +182,16 @@ POST /v1/trades/initiate
 {
   "session_id": string,          // From quote response
   "from_user_address": string,   // compressPublicKey for BTC and SOLANA, address for EVM
-  "amount_in": string,           // Amount in smallest unit, bitint string, ex: 0.01 ETH -> "10000000000000000"
+  "amount_in": string,           // Amount in smallest unit, bigint string, ex: 0.01 ETH -> "10000000000000000"
   "min_amount_out": string,      // Minimum acceptable output, bigint string
   "to_user_address": string,     // Receiving address
   "user_refund_address": string, // Refund address if trade fails
-  "user_refund_pubkey": string, // Refund pubkey if trade fails, in btc is pubkey and in evm is address
-  "creator_public_key": string,  // Compressed public key
+  "user_refund_pubkey": string,  // Refund pubkey if trade fails, in btc is pubkey and in evm is address
+  "creator_public_key": string,  // Compressed public key, in btc is pubkey and in evm is address
   "trade_timeout": number,       // Optional, defaults to 2 hours
   "script_timeout": number,      // Optional, defaults to 24 hours
-  "from_wallet_address": string,  // Creator address
-  "affiliate_info":  [
+  "from_wallet_address": string, // Creator address
+  "affiliate_info": [
     {
       "provider": string,      // Name of the affiliate provider
       "rate": string,          // Fee rate in basis points (e.g., "25" for 0.25%)
@@ -360,28 +360,43 @@ const getQuote = async () => {
   const quote = await api.post('/v1/solver/indicative-quote', {
     from_token_id: "tBTC",
     to_token_id: "ETH",
-    from_token_amount: "100000"
+    from_token_amount: "10000000000000000", // 0.01 ETH in wei
+    affiliate_fee_bps: "25" // Optional: 0.25% affiliate fee
   });
   return quote.data;
 };
 
 // Initialize trade once user confirms
 const initiateTrade = async (quoteData) => {
+  const now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
   const trade = await api.post('/v1/trades/initiate', {
     session_id: quoteData.session_id,
-    from_user_address: "0x...",
-    to_user_address: "0x...",
-    user_refund_address: "0x...",
-    creator_public_key: "0x...",
-    amount_in: "100000",
-    min_amount_out: quoteData.best_quote
+    from_user_address: "0x19ce4de99ce88bc4a759e8dbdec42724eecb666f", // EVM address
+    to_user_address: "tb1pr00d3pkyhp7aghwk0y8g7mjsau9hkll3m8djdwqw4eukmw79ym2qp97t3v", // BTC address
+    user_refund_address: "0x19ce4de99ce88bc4a759e8dbdec42724eecb666f", // EVM address for refunds
+    user_refund_pubkey: "0x19ce4de99ce88bc4a759e8dbdec42724eecb666f", // Same as refund address for EVM
+    creator_public_key: "0x19ce4de99ce88bc4a759e8dbdec42724eecb666f", // Compressed public key
+    amount_in: "10000000000000000", // 0.01 ETH in wei
+    min_amount_out: quoteData.best_quote,
+    trade_timeout: now + 7200, // Current timestamp + 2 hours
+    script_timeout: now + 86400, // Current timestamp + 24 hours
+    from_wallet_address: "0x19ce4de99ce88bc4a759e8dbdec42724eecb666f", // Creator address
+    affiliate_info: [
+      {
+        provider: "Optimex Protocol",
+        rate: "25", // 0.25% in basis points
+        receiver: "0x4534c971921956e9f705fa3e9c73d7dfd7669166",
+        network: "ethereum"
+      }
+    ]
   });
 
   // Send the tokens
-  const depositTx = await wallet.sendTransaction(
-    trade.data.deposit_address,
-    trade.data.deposit_amount
-  );
+  const depositTx = await wallet.sendTransaction({
+    to: trade.data.deposit_address,
+    value: trade.data.amount_in, // For native tokens
+    data: trade.data.payload // For EVM tokens
+  });
 
   // Optional: Notify about transaction
   await api.post(`/v1/trades/${trade.data.trade_id}/submit-tx`, {
