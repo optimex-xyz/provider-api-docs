@@ -297,18 +297,22 @@ Note: These states are internal to the solver design, and are different from tra
 	TradeStateUserConfirmed                   = "UserConfirmed"                   // After users submit or update trade info
 	TradeStateReadyToSubmitToL2               = "ReadyToSubmitToL2"               // After the trade info submitted by users is validated and deposit tx is mined
 	TradeStateL2SubmissionStarted             = "L2SubmissionStarted"             // When the process to submit data to L2 started
-	TradeStateInfoSubmittedToL2               = "TradeInfoSubmittedToL2"          // After trade info is submitted to the Router contract by the solver
-	TradeStateDepositConfirmed                = "DepositConfirmed"                // Deposit is confirmed by MPC (ConfirmDeposit event is fired from Router contract)
+	TradeStateInfoSubmittedToL2               = "TradeInfoSubmittedToL2"          // After trade info is submitted to the L2 protocol contract
+	TradeStateDepositConfirmed                = "DepositConfirmed"                // Deposit is confirmed by L2 protocol contract
 	TradeStateRequestForCommitmentStarted     = "RequestForCommitmentStarted"     // When the process of requesting for commitments from pmms started
-	TradeStateCommitted                       = "Committed"                       // When a PMM commits a quote for the trade (PMM sent committed quote signature)
-	TradeStateWaitToRetryCommit               = "WaitToRetryCommit"               // When a trade failed to get a commitment from pmms, after some time the trade will transit to DepositConfirmed state to get ready to next commit attempt
+	TradeStateCommitted                       = "Committed"                       // When a PMM commits a quote for the trade
+	TradeStateWaitToRetryCommit               = "WaitToRetryCommit"               // When a trade failed to get a commitment from pmms, after some time the trade will transit to WaitToRetryCommit state to get ready to next commit attempt
 	TradeStateStartedCommitmentSubmissionToL2 = "StartedCommitmentSubmissionToL2" // When the operator started its process to submit commitment data to L2
 	TradeStateReadyForPayment                 = "ReadyForPayment"                 // When commitment for the trade is submitted to L2, in this state, waiting PMM to make payment
 	TradeStateFailed                          = "Failed"                          // Trade is failed during the protocol process
 	TradeStateUserCancelled                   = "UserCancelled"                   // When the trade is cancelled by the user
 	TradeStatePaymentBundleSubmitted          = "PaymentBundleSubmitted"          // When the trade payment bundle information is submitted to L2
 	TradeStatePaymentConfirmed                = "PaymentConfirmed"                // When the trade payment is confirmed by MPC that PMM has made payment
-	TradeStateDone                            = "Done"
+	TradeStateDone                            = "Done"                            // Everything is done from solver side
+	TradeStateFailure                         = "Failure"                         // Trade is marked as Failure by a MPC node
+	TradeStateToBeAborted                     = "ToBeAborted"                     // An intermediary state indicating the trade is marked to be aborted to avoid race condition
+	TradeStateAborted                         = "Aborted"                         // Trade aborted due to failure or trade timeout
+
 ```
 #### Submit Transaction (Optional)
 ```http
