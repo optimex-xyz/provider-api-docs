@@ -9,6 +9,7 @@
     "ethers": "^6.14.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "react-toastify": "^11.0.5",
     "typescript": "^5.0.0",
     "viem": "^2.30.5",
     "wagmi": "^2.15.4"
