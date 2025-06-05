@@ -1,5 +1,11 @@
 import { useSendTransaction } from "wagmi";
-import { AFFILIATE_INFO } from "../config";
+import {
+  AFFILIATE_INFO,
+  CHAIN_ID,
+  SCRIPT_TIMEOUT,
+  SUPPORTED_NETWORK,
+  TRADE_TIMEOUT,
+} from "../config";
 import { useWallet } from "../context";
 import Service, {
   type SwapQuote,
@@ -57,6 +63,12 @@ export const useConfirmSwap = () => {
       session_id: quote?.session_id,
       amount_in: amountIn,
       min_amount_out: quote?.best_quote_after_fees,
+      trade_timeout: TRADE_TIMEOUT
+        ? Math.floor(Date.now() / 1000) + TRADE_TIMEOUT * 60
+        : undefined,
+      script_timeout: SCRIPT_TIMEOUT
+        ? Math.floor(Date.now() / 1000) + SCRIPT_TIMEOUT * 60
+        : undefined,
     });
 
     if (isNeedApprove(fromToken)) {
@@ -77,11 +89,16 @@ export const useConfirmSwap = () => {
       txHash = await sendTransactionAsync({
         value: fromToken?.token_address === "native" ? amountIn : 0,
         to: data.deposit_address,
-        chainId: fromToken?.network_id,
+        chainId: CHAIN_ID[fromToken?.network_id as SUPPORTED_NETWORK],
         data: data.payload,
       } as any);
     }
 
+    try {
+      await Service.submitTx({ tx_id: txHash, trade_id: data.trade_id });
+    } catch (error) {
+      console.error("submit tx error", error);
+    }
     return { tradeId: data.trade_id, txHash };
   };
 };

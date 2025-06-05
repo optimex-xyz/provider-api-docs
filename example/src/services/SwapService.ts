@@ -1,5 +1,5 @@
 import axios, { AxiosError } from "axios";
-import { API_KEY, BASE_URL } from "../config";
+import { API_KEY, BASE_URL, SUPPORTED_NETWORK } from "../config";
 
 export interface SwapQuote {
   session_id: string;
@@ -56,6 +56,8 @@ interface InitTradePayload {
   session_id: string;
   amount_in: string;
   min_amount_out: string;
+  trade_timeout?: number;
+  script_timeout?: number;
 }
 
 export class SwapService {
@@ -133,6 +135,14 @@ export class SwapService {
   async getAvailableTokens(): Promise<TokenInfo[]> {
     const data = await this.request<{ tokens: TokenInfo[] }>("/v1/tokens");
     return data.tokens;
+  }
+
+  async submitTx(payload: { tx_id: string; trade_id: string }): Promise<void> {
+    return this.request<void>(
+      `/v1/trades/${payload.trade_id}/submit-tx`,
+      "POST",
+      payload
+    );
   }
 }
 

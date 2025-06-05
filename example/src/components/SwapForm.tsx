@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ethers } from "ethers";
 import { type TokenInfo } from "../services/SwapService";
 import { TokenSelect } from "./TokenSelect";
@@ -22,7 +22,20 @@ export const SwapForm: React.FC<SwapFormProps> = ({}) => {
     message: string;
   } | null>(null);
 
-  const { data: tokens = [] } = useAvailableTokens();
+  const { data: tokens } = useAvailableTokens();
+  useEffect(() => {
+    if (tokens) {
+      // find btc to eth
+      const btcToken =
+        tokens.find((token) => token.token_id === "tBTC") ||
+        tokens.find((token) => token.token_id === "BTC");
+      const ethToken = tokens.find((token) => token.token_id === "ETH");
+      if (btcToken && ethToken) {
+        setFromToken(btcToken);
+        setToToken(ethToken);
+      }
+    }
+  }, [tokens]);
 
   const {
     data: quote,
@@ -87,7 +100,7 @@ export const SwapForm: React.FC<SwapFormProps> = ({}) => {
       <div className="flex flex-col gap-2">
         <label className="font-medium text-white">From Token</label>
         <TokenSelect
-          tokens={tokens}
+          tokens={tokens ?? []}
           value={fromToken}
           onChange={setFromToken}
           placeholder="Select token to send"
@@ -97,7 +110,7 @@ export const SwapForm: React.FC<SwapFormProps> = ({}) => {
       <div className="flex flex-col gap-2">
         <label className="font-medium text-white">To Token</label>
         <TokenSelect
-          tokens={tokens}
+          tokens={tokens ?? []}
           value={toToken}
           onChange={setToToken}
           placeholder="Select token to receive"
