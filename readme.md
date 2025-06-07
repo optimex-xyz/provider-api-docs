@@ -470,7 +470,6 @@ Creates a withdrawal claim for the provider to withdraw their commission.
   "provider_address": string,     // Provider's address
   "public_key": string,           // Public key (same as provider_address for EVM/SOLANA)
   "timestamp": number,            // Current timestamp (must be within 5 minutes)
-  "chain_type": string,           // should be EVM/BTC/SOLANA
   "receiver_address": string,     // Address to receive funds
   "signature": string             // Signature of the request using provider wallet to sign message: "Claim reward for wallet {provider_address} at {timestamp}"
 }
@@ -513,7 +512,6 @@ limit: number             // Optional: Number of items per page (default: 10)
       "wallet_address": string,          // Provider's wallet address
       "timestamp": string,               // Request timestamp (bigint as string)
       "signature": string,               // Request signature
-      "chain_type": string,              // Chain type: "BTC", "EVM", or "SOLANA"
       "receive_address": string,         // Address to receive funds
       "status": string,                  // Claim status: "PENDING", "APPROVED", "REJECTED", "COMPLETED", "FAILED"
       "total_usd_amount": string,        // Total USD value (nullable)
@@ -572,7 +570,6 @@ To create a valid signature for withdrawal claims, follow these steps:
      provider_address: providerAddress,
      public_key: providerAddress,        // For EVM chains, this is the same as providerAddress
      timestamp: timestamp,
-     chain_type: "EVM",
      receiver_address: receiverAddress,
      signature: signature
    };
