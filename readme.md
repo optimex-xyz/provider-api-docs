@@ -195,7 +195,7 @@ POST /v1/trades/initiate
     {
       "provider": string,      // Name of the affiliate provider
       "rate": string,          // Fee rate in basis points (e.g., "25" for 0.25%)
-      "receiver": string,      // Optional: Address to receive affiliate fees
+      "receiver": string,      // Provider address
       "network": string        // Optional: Network where affiliate fees will be paid
     }
   ]
@@ -410,3 +410,182 @@ const initiateTrade = async (quoteData) => {
   return depositTx;
 };
 ```
+
+## Part 3: Affiliate Provider APIs
+
+The following APIs enable affiliate providers to manage their commissions and claims.
+
+### Provider Account Management
+
+#### Get Provider Account Balances
+```http
+GET /v1/provider/account/:providerAddress
+```
+
+Returns commission balances with USD values for all tokens and networks for the specified provider.
+
+**Parameters**
+```
+providerAddress: string   // Provider address to get balances for
+```
+
+**Response** `200` (Example)
+```json
+{
+  "data": {
+    "provider_address": string,              // Provider's address
+    "total_commission_usd": number,          // Total commission value in USD
+    "available_usd_value": number,           // Available balance in USD
+    "commissions_by_token": [
+      {
+        "token": {
+          "token_id": string,                // Token identifier
+          "token_name": string,              // Token name
+          "token_symbol": string,            // Token symbol
+          "token_logo_uri": string,          // Token logo URL
+          "token_decimals": number           // Token decimal places
+        },
+        "total_commission": string,          // Total commission in token amount
+        "balance": string,                   // Available balance in token amount
+        "total_commission_usd": number,      // Total commission in USD
+        "available_usd": number              // Available balance in USD
+      }
+    ]
+  }
+}
+```
+
+### Provider Claims
+
+#### Create Withdrawal Claim
+```http
+POST /v1/provider/claim
+```
+
+Creates a withdrawal claim for the provider to withdraw their commission.
+
+**Request Body**
+```json
+{
+  "provider_address": string,     // Provider's address
+  "public_key": string,           // Public key (same as provider_address for EVM/SOLANA)
+  "timestamp": number,            // Current timestamp (must be within 5 minutes)
+  "chain_type": string,           // should be EVM/BTC/SOLANA
+  "receiver_address": string,     // Address to receive funds
+  "signature": string             // Signature of the request using provider wallet to sign message: "Claim reward for wallet {provider_address} at {timestamp}"
+}
+```
+
+**Response** `200` (Example)
+```json
+{
+  "data": {
+    "claim_id": string,           // Unique claim identifier
+    "status": string,             // Claim status
+    "amount": string,             // Amount to be claimed
+    "created_at": string          // Creation timestamp (ISO format)
+  }
+}
+```
+
+#### Get Provider Claims
+```http
+GET /v1/provider/claims/:providerAddress
+```
+
+Returns claims for the specified provider with optional status filtering and pagination.
+
+**Parameters**
+```
+providerAddress: string   // Provider address to get claims for
+status: string            // Optional: Filter claims by status
+page: number              // Optional: Page number (default: 1)
+limit: number             // Optional: Number of items per page (default: 10)
+```
+
+**Response** `200` (Example)
+```json
+{
+  "data":  [
+    {
+      "id": number,                      // Internal ID
+      "claim_id": string,                // Unique claim identifier
+      "wallet_address": string,          // Provider's wallet address
+      "timestamp": string,               // Request timestamp (bigint as string)
+      "signature": string,               // Request signature
+      "chain_type": string,              // Chain type: "BTC", "EVM", or "SOLANA"
+      "receive_address": string,         // Address to receive funds
+      "status": string,                  // Claim status: "PENDING", "APPROVED", "REJECTED", "COMPLETED", "FAILED"
+      "total_usd_amount": string,        // Total USD value (nullable)
+      "tx_hash": [                       // Array of transaction hashes (nullable)
+        {
+          "token_id": string,            // Token identifier
+          "tx_hash": string              // Transaction hash for this token
+        }
+      ],
+      "admin_notes": string,             // Admin notes (nullable)
+      "processed_by": string,            // Address of processor (nullable)
+      "processed_at": string,            // Processing timestamp (nullable)
+      "created_at": string,              // Creation timestamp
+      "updated_at": string               // Last update timestamp
+    }
+  ],
+  "paging": {
+    "total": number,                    // Total number of claims
+    "page": number,                     // Current page
+    "limit": number,                    // Items per page
+    "pages": number                     // Total number of pages
+  }
+}
+```
+
+#### Creating the Signature for Withdrawal Claims
+
+To create a valid signature for withdrawal claims, follow these steps:
+
+1. **Construct the message string**:
+   ```javascript
+   const message = `Claim reward for wallet ${providerAddress} at ${timestamp}`;
+   ```
+   Where:
+   - `providerAddress` is the provider's wallet address
+   - `timestamp` is the current Unix timestamp in milliseconds
+
+2. **Sign the message with the provider's private key**:
+
+   Using ethers.js v6:
+   ```javascript
+   // Import ethers
+   import { ethers } from "ethers";
+
+   // Connect to the provider (e.g., MetaMask)
+   const provider = new ethers.BrowserProvider(window.ethereum);
+   const signer = await provider.getSigner();
+
+   // Sign the message
+   const signature = await signer.signMessage(message);
+   ```
+
+3. **Include the signature in your request**:
+   ```javascript
+   const request = {
+     provider_address: providerAddress,
+     public_key: providerAddress,        // For EVM chains, this is the same as providerAddress
+     timestamp: timestamp,
+     chain_type: "EVM",
+     receiver_address: receiverAddress,
+     signature: signature
+   };
+   ```
+
+4. **Verify the signature (server-side)**:
+   The server will verify that:
+   - The message format is correct
+   - The timestamp is within 5 minutes of the current time
+   - The signature is valid for the given provider address
+   - The public_key matches the provider_address
+
+**Note**: The signature will be considered invalid if:
+- The timestamp is more than 5 minutes old
+- The message format is incorrect
+- The signature doesn't match the expected signer
