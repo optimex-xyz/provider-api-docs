@@ -471,6 +471,7 @@ Creates a withdrawal claim for the provider to withdraw their commission.
   "public_key": string,           // Public key (same as provider_address for EVM/SOLANA)
   "timestamp": number,            // Current timestamp (must be within 5 minutes)
   "receiver_address": string,     // Address to receive funds
+  "chain_type": string,           // Chain type: "BTC", "EVM", "SOLANA"
   "signature": string             // Signature of the request using provider wallet to sign message: "Claim reward for wallet {provider_address} at {timestamp}"
 }
 ```
@@ -481,7 +482,8 @@ Creates a withdrawal claim for the provider to withdraw their commission.
   "data": {
     "claim_id": string,           // Unique claim identifier
     "status": string,             // Claim status
-    "amount": string,             // Amount to be claimed
+    "total_usd_amount": string,   // Total USD amount claimed
+    "chain_type": string,         // Chain type for this claim
     "created_at": string          // Creation timestamp (ISO format)
   }
 }
@@ -509,16 +511,24 @@ limit: number             // Optional: Number of items per page (default: 10)
     {
       "id": number,                      // Internal ID
       "claim_id": string,                // Unique claim identifier
-      "wallet_address": string,          // Provider's wallet address
+      "provider_address": string,        // Provider's address
+      "receiver_address": string,        // Address to receive funds
       "timestamp": string,               // Request timestamp (bigint as string)
       "signature": string,               // Request signature
-      "receive_address": string,         // Address to receive funds
+      "chain_type": string,              // Chain type: "BTC", "EVM", "SOLANA"
       "status": string,                  // Claim status: "PENDING", "APPROVED", "REJECTED", "COMPLETED", "FAILED"
-      "total_usd_amount": string,        // Total USD value (nullable)
-      "tx_hash": [                       // Array of transaction hashes (nullable)
+      "total_usd_amount": string,        // Total USD value
+      "claim_txs": [                     // Array of token transfer transactions
         {
+          "id": number,                  // Transaction ID
           "token_id": string,            // Token identifier
-          "tx_hash": string              // Transaction hash for this token
+          "token_symbol": string,        // Token symbol
+          "amount": string,              // Token amount
+          "usd_value": string,           // USD value
+          "tx_hash": string,             // Transaction hash (nullable)
+          "status": string,              // Transaction status
+          "created_at": string,          // Creation timestamp
+          "updated_at": string           // Last update timestamp
         }
       ],
       "admin_notes": string,             // Admin notes (nullable)
