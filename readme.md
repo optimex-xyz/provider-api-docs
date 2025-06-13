@@ -448,9 +448,58 @@ providerAddress: string   // Provider address to get balances for
         "total_commission": string,          // Total commission in token amount
         "balance": string,                   // Available balance in token amount
         "total_commission_usd": number,      // Total commission in USD
-        "available_usd": number              // Available balance in USD
+        "available_usd": number,             // Available balance in USD
+        "total_txs": number                  // Total number of commission transactions
       }
     ]
+  }
+}
+```
+
+#### Get Provider Transactions by Token
+```http
+GET /v1/provider/account/:providerAddress/:tokenId
+```
+
+Returns list of transactions for the specified provider address and token ID, sorted by created_at desc with pagination.
+
+**Parameters**
+```
+providerAddress: string   // Provider address
+tokenId: string          // Token ID (e.g., "usdt", "btc")
+page: number             // Optional: Page number (default: 1)
+limit: number            // Optional: Number of items per page (default: 10)
+txType: string           // Optional: Transaction type filter (default: "COMMISSION")
+```
+
+**Query Parameters**
+```
+txType: "COMMISSION" | "REFUND" | "WITHDRAWAL"   // Filter by transaction type
+```
+
+**Response** `200` (Example)
+```json
+{
+  "data": [
+    {
+      "id": number,                        // Transaction ID
+      "provider_address": string,          // Provider's address
+      "referee_address": string,           // Referee's address (nullable)
+      "token_id": string,                  // Token identifier
+      "amount": string,                    // Transaction amount
+      "transaction_type": string,          // Transaction type: "COMMISSION", "REFUND", "WITHDRAWAL"
+      "commission_rate": number,           // Commission rate in basis points (nullable)
+      "trade_id": string,                  // Related trade ID (nullable)
+      "claim_id": string,                  // Related claim ID (nullable)
+      "created_at": string,                // Creation timestamp (ISO format)
+      "updated_at": string                 // Last update timestamp (ISO format)
+    }
+  ],
+  "paging": {
+    "total": number,                      // Total number of transactions
+    "page": number,                       // Current page
+    "limit": number,                      // Items per page
+    "pages": number                       // Total number of pages
   }
 }
 ```
@@ -543,6 +592,117 @@ limit: number             // Optional: Number of items per page (default: 10)
     "page": number,                     // Current page
     "limit": number,                    // Items per page
     "pages": number                     // Total number of pages
+  }
+}
+```
+
+## Part 4: Trade Search APIs
+
+### Search Trade by Transaction
+
+#### Search Trade by Deposit or Settlement Transaction
+```http
+GET /v1/trades/search
+```
+
+Search for a trade using either deposit transaction ID or settlement transaction ID.
+
+**Query Parameters**
+```
+depositTxId: string      // Optional: Deposit transaction ID to search for
+settlementTxId: string   // Optional: Settlement transaction ID to search for
+```
+
+**Note**: Either `depositTxId` or `settlementTxId` must be provided, but not both.
+
+**Response** `200` (Example)
+```json
+{
+  "data": {
+    "id": number,                          // Internal trade ID
+    "trade_id": string,                    // Unique trade identifier
+    "status": string,                      // Trade status (e.g., "SETTLEMENT_CONFIRMED")
+    "trade_timeout": number,               // Trade timeout timestamp
+    "script_timeout": number,              // Script timeout timestamp
+    "timestamp": number,                   // Trade creation timestamp
+    "from_user_address": string,           // Sender's address
+    "to_user_address": string,             // Recipient's address
+    "org_id": string,                      // Organization ID (nullable)
+    "processed_auto": boolean,             // Whether processed automatically
+    "processed_at": string,                // Processing timestamp (nullable)
+    "deposit_tx_id": string,               // Deposit transaction ID
+    "settlement_tx_id": string,            // Settlement transaction ID
+    "swap_type": string,                   // Swap type (e.g., "OPTIMISTIC")
+    "amount_in": string,                   // Input amount (nullable)
+    "from_token": {
+      "id": number,                        // Token database ID
+      "active": boolean,                   // Whether token is active
+      "token_id": string,                  // Token identifier (e.g., "tBTC")
+      "created_at": string,                // Creation timestamp
+      "network_id": string,                // Network identifier
+      "token_name": string,                // Token name
+      "updated_at": string,                // Last update timestamp
+      "network_name": string,              // Network name
+      "network_type": string,              // Network type (e.g., "BTC", "EVM")
+      "token_symbol": string,              // Token symbol
+      "token_address": string,             // Token contract address or "native"
+      "token_logo_uri": string,            // Token logo URL
+      "network_symbol": string,            // Network symbol
+      "token_decimals": number,            // Token decimal places
+      "network_logo_uri": string           // Network logo URL
+    },
+    "to_token": {
+      "id": number,                        // Token database ID
+      "active": boolean,                   // Whether token is active
+      "token_id": string,                  // Token identifier (e.g., "ETH")
+      "created_at": string,                // Creation timestamp
+      "network_id": string,                // Network identifier
+      "token_name": string,                // Token name
+      "updated_at": string,                // Last update timestamp
+      "network_name": string,              // Network name
+      "network_type": string,              // Network type (e.g., "BTC", "EVM")
+      "token_symbol": string,              // Token symbol
+      "token_address": string,             // Token contract address or "native"
+      "token_logo_uri": string,            // Token logo URL
+      "network_symbol": string,            // Network symbol
+      "token_decimals": number,            // Token decimal places
+      "network_logo_uri": string           // Network logo URL
+    },
+    "created_at": string,                  // Creation timestamp (ISO format)
+    "updated_at": string,                  // Last update timestamp (ISO format)
+    "events": [                            // Array of trade events
+      {
+        "trade_id": string,                // Trade identifier
+        "action": string,                  // Event action (e.g., "ConfirmSettlement", "MakePayment")
+        "tx_id": string,                   // Transaction ID
+        "block_number": number,            // Block number
+        "timestamp": number,               // Event timestamp
+        "input_data": object,              // Event-specific data
+        "created_at": string,              // Creation timestamp (ISO format)
+        "updated_at": string               // Last update timestamp (ISO format)
+      }
+    ]
+  },
+  "traceId": string                        // Request trace ID for debugging
+}
+```
+
+**Event Actions Include:**
+- `INIT` - Trade initialization
+- `PRE_SUBMIT` - Pre-submission preparation
+- `SubmitTradeInfo` - Trade information submitted
+- `ConfirmDeposit` - Deposit confirmed
+- `SelectPMM` - Market maker selected
+- `MakePayment` - Payment made
+- `ConfirmPayment` - Payment confirmed
+- `ConfirmSettlement` - Settlement confirmed
+
+**Response** `404` - Trade not found
+```json
+{
+  "error": {
+    "message": "Trade not found",
+    "code": "TRADE_NOT_FOUND"
   }
 }
 ```
