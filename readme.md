@@ -466,7 +466,7 @@ Returns list of transactions for the specified provider address and token ID, so
 **Parameters**
 ```
 providerAddress: string   // Provider address
-tokenId: string          // Token ID (e.g., "usdt", "btc")
+tokenId: string          // Token ID (e.g., ETH, ethereum_USDT, WETH, ethereum_USDC...)
 page: number             // Optional: Page number (default: 1)
 limit: number            // Optional: Number of items per page (default: 10)
 txType: string           // Optional: Transaction type filter (default: "COMMISSION")
