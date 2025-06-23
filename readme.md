@@ -150,7 +150,10 @@ POST /v1/solver/indicative-quote
   "from_token_id": string,          // Token to send (e.g., "tBTC")
   "to_token_id": string,            // Token to receive (e.g., "ETH")
   "from_token_amount": string,      // Amount to send in smallest unit
-  "affiliate_fee_bps": string       // Affiliate fee in basis points (optional)
+  "affiliate_fee_bps": string,      // Affiliate fee in basis points (optional)
+  "from_user_address": string,      // The user's address from which the input token will be sent from (crosschain string, optional)
+  "user_receiving_address": string, // The user's address to which the output token will be sent to (crosschain string, optional)
+  "user_refund_pubkey": string      // The user's public key to which the refund will be sent (crosschain string, optional)
 }
 ```
 
