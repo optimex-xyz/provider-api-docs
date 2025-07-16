@@ -107,14 +107,14 @@ GET /v1/tokens
         "network_id": string,    // e.g., "ethereum", "bitcoin"
         "name": string,          // e.g., "Ethereum", "Bitcoin"
         "symbol": string,        // e.g., "ETH", "BTC"
-        "type": string,          // e.g., "EVM", "UTXO"
+        "type": string,          // e.g., "EVM", "BTC"
         "logo_uri": string       // Network logo URL
       }
     ],
     "tokens": [
       {
         "network_id": string,        // e.g., "ethereum", "solana"
-        "token_id": string,          // e.g., "usdt" (same across networks)
+        "token_id": string,          // e.g., "ethereum_USDT"
         "network_name": string,      // e.g., "Ethereum", "Solana"
         "network_symbol": string,    // e.g., "ETH", "SOL"
         "network_type": string,      // e.g., "EVM", "SOL"
@@ -128,7 +128,7 @@ GET /v1/tokens
     ],
     "pairs": [
       {
-        "from_token_id": string,     // e.g., "usdt"
+        "from_token_id": string,     // e.g., "ethereum_USDT"
         "to_token_id": string,       // e.g., "btc"
         "is_active": boolean         // Whether pair is available for trading
       }
@@ -147,7 +147,7 @@ POST /v1/solver/indicative-quote
 **Request Body**
 ```json
 {
-  "from_token_id": string,          // Token to send (e.g., "tBTC")
+  "from_token_id": string,          // Token to send (e.g., "BTC")
   "to_token_id": string,            // Token to receive (e.g., "ETH")
   "from_token_amount": string,      // Amount to send in smallest unit
   "affiliate_fee_bps": string,      // Affiliate fee in basis points (optional)
@@ -236,8 +236,8 @@ GET /v1/trades/{trade_id}
       "fee_out": boolean                   // Whether fees can be paid in this token
     },
     "to_token": {
-      "token_id": string,                  // Token identifier (e.g., "tBTC")
-      "chain": string,                     // Chain name (e.g., "bitcoin_testnet")
+      "token_id": string,                  // Token identifier (e.g., "BTC")
+      "chain": string,                     // Chain name (e.g., "bitcoin")
       "address": string,                   // Token contract address or "native"
       "fee_in": boolean,                   // Whether token can be used for fees
       "fee_out": boolean                   // Whether fees can be paid in this token
@@ -346,7 +346,7 @@ GET /v1/trades/estimate
 **Query Parameters**
 ```
 from_token: string    // Source token identifier (e.g., "ETH")
-to_token: string      // Destination token identifier (e.g., "tBTC")
+to_token: string      // Destination token identifier (e.g., "BTC")
 ```
 
 **Response** `200` (Example)
@@ -365,7 +365,7 @@ to_token: string      // Destination token identifier (e.g., "tBTC")
 // Get quote every 60 seconds while user is deciding
 const getQuote = async () => {
   const quote = await api.post('/v1/solver/indicative-quote', {
-    from_token_id: "tBTC",
+    from_token_id: "BTC",
     to_token_id: "ETH",
     from_token_amount: "10000000000000000", // 0.01 ETH in wei
     affiliate_fee_bps: "25" // Optional: 0.25% affiliate fee
@@ -640,7 +640,7 @@ settlementTxId: string   // Optional: Settlement transaction ID to search for
     "from_token": {
       "id": number,                        // Token database ID
       "active": boolean,                   // Whether token is active
-      "token_id": string,                  // Token identifier (e.g., "tBTC")
+      "token_id": string,                  // Token identifier (e.g., "BTC")
       "created_at": string,                // Creation timestamp
       "network_id": string,                // Network identifier
       "token_name": string,                // Token name
