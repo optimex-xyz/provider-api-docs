@@ -1,5 +1,5 @@
 import axios, { AxiosError } from "axios";
-import { API_KEY, BASE_URL, SUPPORTED_NETWORK } from "../config";
+import { API_KEY, BASE_URL } from "../config";
 
 export interface SwapQuote {
   session_id: string;
@@ -10,6 +10,9 @@ export interface SwapQuote {
     pmm_id: string;
     pmm_receiving_address: string;
   }>;
+  error?: string;
+  message?: string;
+  statusCode: number;
 }
 
 export interface TokenInfo {
@@ -20,6 +23,9 @@ export interface TokenInfo {
   token_address: string;
   network_type: "BTC" | "EVM";
   network_id: string;
+  token_logo_uri: string;
+  network_logo_uri: string;
+  token_name: string;
 }
 
 export interface InitiateTradeResponse {
@@ -60,6 +66,15 @@ interface InitTradePayload {
   script_timeout?: number;
 }
 
+export interface IGetQuotePayload {
+  from_token_id: string;
+  to_token_id: string;
+  from_token_amount: string;
+  affiliate_fee_bps: string;
+  from_user_address: string;
+  to_user_address: string;
+  user_refund_address: string;
+}
 export class SwapService {
   private readonly apiKey: string;
   private readonly baseUrl: string;
@@ -104,12 +119,7 @@ export class SwapService {
     }
   }
 
-  async getQuote(payload: {
-    from_token_id: string;
-    to_token_id: string;
-    from_token_amount: string;
-    affiliate_fee_bps: string;
-  }): Promise<SwapQuote> {
+  async getQuote(payload: IGetQuotePayload): Promise<SwapQuote> {
     return this.request<SwapQuote>(
       "/v1/solver/indicative-quote",
       "POST",

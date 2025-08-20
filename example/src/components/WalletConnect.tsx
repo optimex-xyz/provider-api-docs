@@ -1,78 +1,190 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { OkxWallet } from "../wallets/OkxWallet";
 import { SUPPORTED_NETWORK, IS_TESTNET } from "../config";
 import { useWallet } from "../context";
 import { truncateAddress } from "../utils";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { Button } from "./ui/button";
+import { BTCIcon } from "../icons";
+import { unisatWallet } from "../wallets/UnisatWallet";
 
 interface WalletConnectProps {}
 
-export const okxWallet = new OkxWallet();
+interface BTCWalletSectionProps {
+  btcAddress: string;
+  onConnect: () => Promise<void>;
+  onDisconnect: () => Promise<void>;
+}
 
-export const WalletConnect: React.FC<WalletConnectProps> = ({}) => {
+interface ChainButtonProps {
+  chain: any;
+  onClick: () => void;
+}
+
+interface AccountButtonProps {
+  account: any;
+  onClick: () => void;
+}
+
+const TOAST_CONFIG = {
+  position: "top-right" as const,
+  autoClose: 5000,
+  hideProgressBar: false,
+  closeOnClick: true,
+  pauseOnHover: true,
+  draggable: true,
+};
+
+const BTCWalletSection: React.FC<BTCWalletSectionProps> = ({
+  btcAddress,
+  onConnect,
+  onDisconnect,
+}) => {
+  return (
+    <div className="flex gap-1">
+      {btcAddress && (
+        <div className="text-black flex items-center gap-2 text-md font-bold">
+          BTC: {truncateAddress(btcAddress)}
+        </div>
+      )}
+      {btcAddress && (
+        <Button
+          onClick={() => (btcAddress ? onDisconnect() : onConnect())}
+          variant="outline"
+        >
+          <BTCIcon />
+          {IS_TESTNET ? "BTC Testnet" : "BTC"}
+        </Button>
+      )}
+      <Button
+        onClick={() => (btcAddress ? onDisconnect() : onConnect())}
+        variant="outline"
+      >
+        {btcAddress ? truncateAddress(btcAddress) : "Connect BTC Wallet"}
+      </Button>
+    </div>
+  );
+};
+
+const ChainButton: React.FC<ChainButtonProps> = ({ chain, onClick }) => (
+  <Button
+    variant="outline"
+    onClick={onClick}
+    className="flex items-center gap-2"
+  >
+    {chain.hasIcon && (
+      <div
+        className="size-5 rounded-full overflow-hidden mr-1"
+        style={{ background: chain.iconBackground }}
+      >
+        {chain.iconUrl && (
+          <img
+            alt={chain.name ?? "Chain icon"}
+            src={chain.iconUrl}
+            className="size-full"
+          />
+        )}
+      </div>
+    )}
+    {chain.name}
+  </Button>
+);
+
+const AccountButton: React.FC<AccountButtonProps> = ({ account, onClick }) => (
+  <Button variant="outline" onClick={onClick}>
+    {account.displayName}
+    {account.displayBalance && ` (${account.displayBalance})`}
+  </Button>
+);
+
+// EVM Wallet Section Component
+const EVMWalletSection = () => (
+  <ConnectButton.Custom>
+    {({
+      account,
+      chain,
+      openAccountModal,
+      openChainModal,
+      openConnectModal,
+      authenticationStatus,
+      mounted,
+    }) => {
+      const ready = mounted && authenticationStatus !== "loading";
+      const connected = ready && account && chain;
+
+      if (!connected) {
+        return (
+          <Button variant="outline" onClick={openConnectModal}>
+            Connect EVM Wallet
+          </Button>
+        );
+      }
+
+      if (chain.unsupported) {
+        return (
+          <Button variant="destructive" onClick={openChainModal}>
+            Wrong network
+          </Button>
+        );
+      }
+
+      return (
+        <div className="flex gap-1">
+          <ChainButton chain={chain} onClick={openChainModal} />
+          <AccountButton account={account} onClick={openAccountModal} />
+        </div>
+      );
+    }}
+  </ConnectButton.Custom>
+);
+
+export const WalletConnect: React.FC<WalletConnectProps> = () => {
   const { setBtcWallet, btcAddress } = useWallet();
 
   const connectBTCWallet = async (throwError = true) => {
     try {
-      const { address, compressedPublicKey } = await okxWallet.connect(
-        IS_TESTNET ? SUPPORTED_NETWORK.BTC_TESTNET : SUPPORTED_NETWORK.BTC
+      const network = IS_TESTNET
+        ? SUPPORTED_NETWORK.BTC_TESTNET
+        : SUPPORTED_NETWORK.BTC;
+      const { address, compressedPublicKey = "" } = await unisatWallet.connect(
+        network
       );
       setBtcWallet(address, compressedPublicKey);
     } catch (error) {
       if (!throwError) return;
-      toast.error(
-        error instanceof Error ? error.message : "Unknown error occurred",
-        {
-          position: "top-right",
-          autoClose: 5000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-        }
-      );
+
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error occurred";
+      toast.error(errorMessage, TOAST_CONFIG);
     }
   };
 
   const disconnectBTCWallet = async () => {
     try {
       setBtcWallet("", "");
-      okxWallet.disconnect();
-    } catch (error) {}
+      unisatWallet.disconnect();
+    } catch (error) {
+      // Silent fail for disconnect
+      console.warn("Error disconnecting BTC wallet:", error);
+    }
   };
 
-  // auto reconnect btc
-  useEffect(() => {
-    connectBTCWallet(false);
-  }, []);
+  // Auto reconnect BTC wallet (commented out for now)
+  // useEffect(() => {
+  //   connectBTCWallet(false);
+  // }, []);
 
   return (
-    <div className="w-full mx-auto p-6 bg-white rounded-lg shadow-md border border-gray-200">
-      <p className="text-md text-center font-medium text-gray-700 mb-6">
-        Connect your wallet to start swapping
-      </p>
-      <div className="flex flex-col items-center gap-4 justify-center">
-        <div className="flex gap-2">
-          {btcAddress && (
-            <div className="text-black flex items-center gap-2 text-md font-bold">
-              BTC: {truncateAddress(btcAddress)}
-            </div>
-          )}
-          <button
-            onClick={() =>
-              btcAddress ? disconnectBTCWallet() : connectBTCWallet()
-            }
-            className="px-2 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-[12px] transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
-            {btcAddress ? "Disconnect" : "Connect BTC (OKX)"}
-          </button>
-        </div>
+    <div className="flex gap-4">
+      <BTCWalletSection
+        btcAddress={btcAddress}
+        onConnect={connectBTCWallet}
+        onDisconnect={disconnectBTCWallet}
+      />
 
-        <ConnectButton label="Connect EVM" />
-      </div>
+      <EVMWalletSection />
     </div>
   );
 };

@@ -1,56 +1,62 @@
-import React, { useEffect, useState } from "react";
-import { ethers } from "ethers";
-import { type TokenInfo } from "../services/SwapService";
+import React, { useState } from "react";
 import { TokenSelect } from "./TokenSelect";
-import { useAvailableTokens, useSwapQuote } from "../hooks";
+import { useListTokens, useDebounce, useGetQuote } from "../hooks";
 import { useConfirmSwap } from "../hooks/use-confirm-swap";
+import { Button } from "./ui/button";
+import { useWallet } from "../context";
+import { toast } from "react-toastify";
+import { truncateAddress } from "../utils";
+import { BASE_URL } from "../config";
+import { useSwapForm } from "../hooks/use-swap-form";
+import { ethers } from "ethers";
+import { Loading } from "./Loading";
+import { AppError } from "./AppError";
+import { ArrowDownUp } from "lucide-react";
 
-interface SwapFormProps {}
+interface SwapFormProps {
+  className?: string;
+}
 
-export const SwapForm: React.FC<SwapFormProps> = ({}) => {
-  const [fromToken, setFromToken] = useState<TokenInfo | null>(null);
-  const [toToken, setToToken] = useState<TokenInfo | null>(null);
-  const [amount, setAmount] = useState<string>("");
-  const [isSwapping, setIsSwapping] = useState(false);
+export const SwapForm: React.FC<SwapFormProps> = ({ className }) => {
+  const { btcAddress, evmAddress, btcPublicKey } = useWallet();
+  const { data: tokens, isLoading: isTokensLoading } = useListTokens();
 
-  const resetForm = () => {
-    setAmount("");
-  };
+  const {
+    fromToken,
+    toToken,
+    amount,
+    setAmount,
+    setFromToken,
+    setToToken,
+    resetForm,
+    isFromBtc,
+    isToBtc,
+    swapTokens,
+  } = useSwapForm({ tokens, btcAddress, evmAddress });
 
-  const [toastMessage, setToastMessage] = useState<{
-    type: "success" | "error";
-    message: string;
-  } | null>(null);
-
-  const { data: tokens } = useAvailableTokens();
-  useEffect(() => {
-    if (tokens) {
-      // find btc to eth
-      const btcToken =
-        tokens.find((token) => token.token_id === "tBTC") ||
-        tokens.find((token) => token.token_id === "BTC");
-      const ethToken = tokens.find((token) => token.token_id === "ETH");
-      if (btcToken && ethToken) {
-        setFromToken(btcToken);
-        setToToken(ethToken);
-      }
-    }
-  }, [tokens]);
+  const debouncedAmount = useDebounce(amount, 500);
 
   const {
     data: quote,
     isLoading: isQuoteLoading,
     error: quoteError,
-  } = useSwapQuote(fromToken, toToken, amount);
+  } = useGetQuote({
+    fromToken,
+    toToken,
+    amount: debouncedAmount,
+    from_user_address: isFromBtc ? btcAddress : evmAddress,
+    to_user_address: isFromBtc ? evmAddress : btcAddress,
+    user_refund_address: isFromBtc ? btcPublicKey : evmAddress,
+  });
+  const amountOut =
+    quote && toToken
+      ? ethers.formatUnits(quote.best_quote_after_fees, toToken.token_decimals)
+      : "0";
+  const { confirmSwap } = useConfirmSwap();
+  const [isSwapping, setIsSwapping] = useState(false);
 
-  const showToast = (type: "success" | "error", message: string) => {
-    setToastMessage({ type, message });
-    setTimeout(() => setToastMessage(null), 5000);
-  };
-
-  const confirmSwap = useConfirmSwap();
   const handleSwap = async () => {
-    if (!quote || !fromToken || !toToken || !amount) return;
+    if (isDisabled) return;
 
     setIsSwapping(true);
     try {
@@ -60,13 +66,15 @@ export const SwapForm: React.FC<SwapFormProps> = ({}) => {
         quote,
         amount,
       });
+
       console.log({ tradeId, txHash });
-      showToast("success", `Trade ID: ${tradeId}, TxHash: ${txHash}`);
+
+      toast.success(<SwapSuccessToast tradeId={tradeId} />);
+
       resetForm();
     } catch (error) {
-      console.log(error);
-      showToast(
-        "error",
+      console.error("Swap failed:", error);
+      toast.error(
         error instanceof Error ? error.message : "Unknown error occurred"
       );
     } finally {
@@ -74,81 +82,92 @@ export const SwapForm: React.FC<SwapFormProps> = ({}) => {
     }
   };
 
+  const isDisabled =
+    !fromToken ||
+    !toToken ||
+    !amount ||
+    !quote ||
+    isSwapping ||
+    isQuoteLoading ||
+    isTokensLoading;
+
+  const getButtonText = () => {
+    if (isTokensLoading) return "Loading Tokens...";
+    if (isQuoteLoading) return "Fetching Quote...";
+    if (quoteError) return quoteError.message;
+    if (isSwapping) return "Swapping...";
+    if (!fromToken || !toToken) return "Select Tokens";
+    if (!amount) return "Enter Amount";
+    if (!quote) return "Get Quote";
+    return "Swap";
+  };
+
+  if (isTokensLoading) return <Loading message="Loading..." />;
+  if (!tokens || tokens.length === 0)
+    return <AppError message="No tokens available. Please try again later." />;
+
   return (
-    <div className="p-6 border border-gray-200 w-full rounded-lg shadow-lg flex flex-col gap-4">
-      {toastMessage && (
-        <div
-          className={`fixed top-4 right-4 px-4 py-3 rounded-md text-white z-50 animate-slideIn ${
-            toastMessage.type === "success" ? "bg-green-500" : "bg-red-500"
-          }`}
-        >
-          {toastMessage.message}
-        </div>
-      )}
-
-      <div className="flex flex-col gap-2">
-        <label className="font-medium text-white">Amount</label>
-        <div className="flex gap-2 items-center">
-          <input
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="flex-1 px-2 py-2 border border-gray-200 rounded-md text-base focus:outline-none focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
-          />
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-2">
-        <label className="font-medium text-white">From Token</label>
+    <div className={`flex-1 w-full flex justify-center ${className || ""}`}>
+      <div className="w-[32rem] mt-20 space-y-2 h-fit">
         <TokenSelect
-          tokens={tokens ?? []}
+          tokens={tokens}
           value={fromToken}
-          onChange={setFromToken}
-          placeholder="Select token to send"
+          onTokenChange={setFromToken}
+          label="From Token"
+          onAmountChange={setAmount}
+          networkId={fromToken?.network_id ?? ""}
+          walletAddress={isFromBtc ? btcAddress : evmAddress}
+          amount={amount}
         />
-      </div>
 
-      <div className="flex flex-col gap-2">
-        <label className="font-medium text-white">To Token</label>
-        <TokenSelect
-          tokens={tokens ?? []}
-          value={toToken}
-          onChange={setToToken}
-          placeholder="Select token to receive"
-        />
-      </div>
-
-      {quoteError && (
-        <div className="text-red-600 text-sm">Error: {quoteError.message}</div>
-      )}
-      {quote && toToken && (
-        <div>
-          Est.Output:{" "}
-          {Number(
-            ethers.formatUnits(
-              quote.best_quote_after_fees,
-              toToken.token_decimals
-            )
-          ).toFixed(8)}{" "}
-          {toToken.token_symbol}
+        <div className="flex justify-center absolute left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-black/50 rounded-full p-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={swapTokens}
+            disabled={!fromToken || !toToken}
+            className="rounded-full w-10 h-10 p-0 border-white/20 hover:border-white/40"
+            title="Swap tokens"
+          >
+            <ArrowDownUp />
+          </Button>
         </div>
-      )}
 
-      <button
-        className={`btn btn-primary ${
-          isSwapping || isQuoteLoading ? "loading" : ""
-        }`}
-        onClick={handleSwap}
-        disabled={
-          !fromToken ||
-          !toToken ||
-          !amount ||
-          !quote ||
-          isSwapping ||
-          isQuoteLoading
-        }
-      >
-        {isSwapping ? "Swapping..." : "Swap"}
-      </button>
+        <TokenSelect
+          tokens={tokens}
+          value={toToken}
+          onTokenChange={setToToken}
+          label="To Token"
+          amount={amountOut}
+          networkId={toToken?.network_id ?? ""}
+          walletAddress={isToBtc ? btcAddress : evmAddress}
+        />
+        <Button
+          size="lg"
+          className="w-full bg-amber-600 hover:bg-amber-700 rounded-sm h-12 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          onClick={handleSwap}
+          disabled={isDisabled}
+        >
+          {getButtonText()}
+        </Button>
+      </div>
     </div>
   );
 };
+
+const SwapSuccessToast: React.FC<{ tradeId: string }> = ({ tradeId }) => (
+  <div className="font-light">
+    <h6 className="mb-2">Swap Success</h6>
+    <p>
+      View details:{" "}
+      <a
+        href={`${BASE_URL}/v1/trades/${tradeId}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="underline"
+      >
+        {truncateAddress(tradeId, 10, 16)}
+      </a>
+    </p>
+  </div>
+);

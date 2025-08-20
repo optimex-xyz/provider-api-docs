@@ -1,7 +1,7 @@
-import type { OkxWalletInstance } from "./okx.type";
+import type { UnisatProvider } from "./unisat.type";
 
 declare global {
   interface Window {
-    okxwallet?: OkxWalletInstance;
+    unisat_wallet?: UnisatProvider;
   }
 }
