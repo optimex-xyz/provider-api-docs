@@ -90,10 +90,9 @@ VITE_TRADE_TIMEOUT=240 // 4h
 VITE_SCRIPT_TIMEOUT=1440 // 24h. If VITE_SCRIPT_TIMEOUT is set to less than 8 hours, the trade will fail.
 ```
 
-**Configuration Files:**
+**Configuration:**
 
-- `.env.development` - Development environment settings
-- `.env.production` - Production environment settings
+The application uses environment variables that can be configured through a `.env` file. You can copy `.env.example` to `.env` and update the values as needed.
 
 **Optional Customizations:**
 
