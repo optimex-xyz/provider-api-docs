@@ -1,8 +1,8 @@
-# Optimex Swap Example Application
+# Optimex Provider API Integration Demo
 
 ## 🚀 Project Overview
 
-This is a **React-based web application** that demonstrates how to integrate with the **Optimex Protocol API** for cross-chain token swapping. The application allows users to swap tokens between different blockchain networks (e.g., Ethereum to Bitcoin, Bitcoin to Ethereum)
+This is a **React-based web application** that demonstrates how to integrate with the **Optimex Provider API** for cross-chain token swapping. The application allows users to swap tokens between different blockchain networks (e.g., Ethereum to Bitcoin, Bitcoin to Ethereum)
 
 ### 🌐 Supported Networks
 
@@ -60,32 +60,46 @@ yarn install
 
 ### 3. Environment Configuration
 
-The application is currently configured through the `src/config/index.ts` file. You'll need to update this file with your own configuration:
+The application is configured through environment variables loaded from `.env` files. The configuration is automatically loaded by the `src/config/index.ts` file.
 
 **Required Configuration Changes:**
 
 1. **Update API Key**: Replace `"your-api-key-here"` with your actual Optimex API key
-2. **Choose Network**: Set `IS_TESTNET` to `true` for testing or `false` for mainnet
-3. **Update Base URL**: The `BASE_URL` will automatically update based on your network choice
+2. **Choose Network**: Set `VITE_IS_TESTNET` to `"true"` for testing or `"false"` for mainnet
+3. **Update Base URL**: Modify `VITE_OPTIMEX_BASE_URL` for your preferred endpoint
 
-**Example Configuration:**
+**Environment Variables:**
 
-```typescript
-// In src/config/index.ts
-export const IS_TESTNET = true; // Set to false for mainnet
-export const API_KEY = "your-actual-api-key-here";
+The application uses the following environment variables (all prefixed with `VITE_`):
 
-// The BASE_URL will automatically be:
-// Testnet: https://provider-stg.bitdex.xyz
-// Mainnet: https://ks-provider.optimex.xyz
+```bash
+# Network Configuration
+VITE_IS_TESTNET=true
+VITE_OPTIMEX_BASE_URL=https://provider-stg.bitdex.xyz
+
+# API Configuration
+VITE_OPTIMEX_API_KEY=your-api-key-here
+
+# Fee and Affiliate Settings
+VITE_FEE_IN_BPS=25 (0.25%)
+VITE_AFFILIATE_RECEIVER_ADDRESS=0x53beBc978F5AfC70aC3bFfaD7bbD88A351123723
+VITE_AFFILIATE_PROVIDER=optimex-provider
+
+# Timeout Settings
+VITE_TRADE_TIMEOUT=240 // 4h
+VITE_SCRIPT_TIMEOUT=1440 // 24h. If VITE_SCRIPT_TIMEOUT is set to less than 8 hours, the trade will fail.
 ```
+
+**Configuration Files:**
+
+- `.env.development` - Development environment settings
+- `.env.production` - Production environment settings
 
 **Optional Customizations:**
 
-- **Fee Settings**: Adjust `FEE_IN_BPS` for different affiliate fee rates
-- **Affiliate Info**: Update `AFFILIATE_INFO` with your own affiliate details
-- **RPC URLs**: Modify `RPC_URL` if you prefer different RPC providers
-- **Timeouts**: Adjust `TRADE_TIMEOUT` and `SCRIPT_TIMEOUT` as needed
+- **Fee Settings**: Adjust `VITE_FEE_IN_BPS` for different affiliate fee rates
+- **Affiliate Info**: Update `VITE_AFFILIATE_RECEIVER_ADDRESS` and `VITE_AFFILIATE_PROVIDER` with your own affiliate details
+- **Timeouts**: Adjust `VITE_TRADE_TIMEOUT` and `VITE_SCRIPT_TIMEOUT` as needed
 
 ### 4. Start Development Server
 

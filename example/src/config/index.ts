@@ -1,21 +1,19 @@
-export const IS_TESTNET = true;
+export const IS_TESTNET = import.meta.env.VITE_IS_TESTNET === "true";
 
-export const API_KEY = "your-api-key-here";
+export const API_KEY = import.meta.env.VITE_OPTIMEX_API_KEY;
 
-export const TRADE_TIMEOUT = 240; // 4h
-export const SCRIPT_TIMEOUT = 1440; // 24h
+export const TRADE_TIMEOUT = Number(import.meta.env.VITE_TRADE_TIMEOUT);
+export const SCRIPT_TIMEOUT = Number(import.meta.env.VITE_SCRIPT_TIMEOUT);
 
-export const BASE_URL = IS_TESTNET
-  ? "https://provider-stg.bitdex.xyz"
-  : "https://ks-provider.optimex.xyz";
+export const BASE_URL = import.meta.env.VITE_OPTIMEX_BASE_URL;
 
-export const FEE_IN_BPS = "25"; // 0.25%
+export const FEE_IN_BPS = import.meta.env.VITE_FEE_IN_BPS;
 
 export const AFFILIATE_INFO = [
   {
-    provider: "KyberSwap",
+    provider: import.meta.env.VITE_AFFILIATE_PROVIDER,
     rate: FEE_IN_BPS,
-    receiver: "0x53beBc978F5AfC70aC3bFfaD7bbD88A351123723",
+    receiver: import.meta.env.VITE_AFFILIATE_RECEIVER_ADDRESS,
     network: "ethereum",
   },
 ];
