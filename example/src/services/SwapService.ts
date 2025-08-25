@@ -26,6 +26,15 @@ export interface TokenInfo {
   token_logo_uri: string;
   network_logo_uri: string;
   token_name: string;
+  chain_id: string;
+}
+
+export interface NetworkInfo {
+  network_id: string;
+  name: string;
+  logo_uri: string;
+  symbol: string;
+  type: string;
 }
 
 export interface InitiateTradeResponse {
@@ -75,6 +84,12 @@ export interface IGetQuotePayload {
   to_user_address: string;
   user_refund_address: string;
 }
+
+export interface IGetAvailableTokensResponse {
+  tokens: TokenInfo[];
+  supported_networks: NetworkInfo[];
+}
+
 export class SwapService {
   private readonly apiKey: string;
   private readonly baseUrl: string;
@@ -142,9 +157,9 @@ export class SwapService {
     return this.request<SwapTrade>(`/v1/trades/${tradeId}`);
   }
 
-  async getAvailableTokens(): Promise<TokenInfo[]> {
-    const data = await this.request<{ tokens: TokenInfo[] }>("/v1/tokens");
-    return data.tokens;
+  async getAvailableTokens(): Promise<IGetAvailableTokensResponse> {
+    const data = await this.request<IGetAvailableTokensResponse>("/v1/tokens");
+    return data;
   }
 
   async submitTx(payload: { tx_id: string; trade_id: string }): Promise<void> {

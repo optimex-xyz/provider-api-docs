@@ -9,6 +9,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Button } from "./ui/button";
 import { BTCIcon } from "../icons";
 import { unisatWallet } from "../wallets/UnisatWallet";
+import { LogOut } from "lucide-react";
 
 interface WalletConnectProps {}
 
@@ -63,6 +64,7 @@ const BTCWalletSection: React.FC<BTCWalletSectionProps> = ({
         variant="outline"
       >
         {btcAddress ? truncateAddress(btcAddress) : "Connect BTC Wallet"}
+        {btcAddress && <LogOut />}
       </Button>
     </div>
   );

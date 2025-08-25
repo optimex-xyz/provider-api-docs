@@ -73,3 +73,7 @@ export const isBtcChain = (
     networkId === SUPPORTED_NETWORK.BTC_TESTNET
   );
 };
+
+export const delay = (ms: number) => {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+};

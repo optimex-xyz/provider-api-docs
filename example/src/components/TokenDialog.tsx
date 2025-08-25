@@ -1,5 +1,5 @@
-import { useRef, useState } from "react";
-import type { TokenInfo } from "../services/SwapService";
+import { useEffect, useMemo, useState } from "react";
+import type { NetworkInfo, TokenInfo } from "../services/SwapService";
 import {
   Dialog,
   DialogContent,
@@ -13,49 +13,133 @@ interface TokenDialogProps {
   trigger: React.ReactNode;
   tokens: TokenInfo[];
   onSelect: (token: TokenInfo) => void;
+  networks: NetworkInfo[];
+  tokenSelected: TokenInfo | null;
 }
+
+const TokenItem = ({
+  token,
+  onSelect,
+  isSelected,
+}: {
+  token: TokenInfo;
+  onSelect: (token: TokenInfo) => void;
+  isSelected: boolean;
+}) => {
+  return (
+    <div
+      className={`flex p-2 items-center gap-2 hover:bg-white/9 rounded-sm cursor-pointer ${
+        isSelected ? "bg-white/9" : ""
+      }`}
+      onClick={() => onSelect(token)}
+    >
+      <img
+        src={token.token_logo_uri}
+        alt={token.token_symbol}
+        width={32}
+        height={32}
+        className="rounded-full"
+      />
+      <div>
+        <p className="text-white">{token.token_name}</p>
+        <p className="text-white/48 text-xs">{token.token_symbol}</p>
+      </div>
+    </div>
+  );
+};
+
+const NetworkItem = ({
+  network,
+  onSelect,
+  isSelected,
+}: {
+  network: NetworkInfo;
+  onSelect: (network: NetworkInfo) => void;
+  isSelected: boolean;
+}) => {
+  return (
+    <div
+      className={`flex p-2 items-center gap-2 hover:bg-white/9 rounded-sm cursor-pointer ${
+        isSelected ? "bg-white/9" : ""
+      }`}
+      onClick={() => onSelect(network)}
+    >
+      <img
+        src={network.logo_uri}
+        alt={network.name}
+        width={32}
+        height={32}
+        className="rounded-full"
+      />
+      <p className="text-white">{network.name}</p>
+    </div>
+  );
+};
 
 export const TokenDialog: React.FC<TokenDialogProps> = ({
   trigger,
   tokens,
   onSelect,
+  networks,
+  tokenSelected,
 }) => {
   const [open, setOpen] = useState(false);
+  const [selectedNetwork, setSelectedNetwork] = useState<NetworkInfo | null>(
+    null
+  );
+
+  useEffect(() => {
+    setSelectedNetwork(
+      networks.find(
+        (network) => network.network_id === tokenSelected?.network_id
+      ) || null
+    );
+  }, [networks, tokenSelected]);
+
+  const listTokens = useMemo(() => {
+    return tokens.filter(
+      (token) => token.network_id === selectedNetwork?.network_id
+    );
+  }, [selectedNetwork]);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger onClick={() => setOpen(true)} asChild>
         {trigger}
       </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle className="text-xl font-thin">
+      <DialogContent className="p-0">
+        <DialogHeader className="">
+          <DialogTitle className="text-xl font-thin mt-2 pl-3">
             Select a Token
           </DialogTitle>
-          <DialogDescription className="flex flex-col gap-4">
-            {tokens.map((token) => (
-              <div
+        </DialogHeader>
+        <DialogDescription className="flex gap-4 border-t border-white/20 px-2">
+          <div className="mt-2 space-y-1">
+            {networks.map((network) => (
+              <NetworkItem
+                key={network.network_id}
+                network={network}
+                onSelect={() => {
+                  setSelectedNetwork(network);
+                }}
+                isSelected={selectedNetwork?.network_id === network.network_id}
+              />
+            ))}
+          </div>
+          <div className="mt-2 space-y-1 border-l flex-1 border-white/20 pl-4 h-[40vh] overflow-y-auto">
+            {listTokens.map((token) => (
+              <TokenItem
                 key={token.token_id}
-                className="flex p-2 items-center gap-2 hover:bg-white/4 rounded-sm cursor-pointer"
-                onClick={() => {
+                token={token}
+                onSelect={() => {
                   onSelect(token);
                   setOpen(false);
                 }}
-              >
-                <img
-                  src={token.token_logo_uri}
-                  alt={token.token_symbol}
-                  width={32}
-                  height={32}
-                  className="rounded-full"
-                />
-                <div>
-                  <p className="text-white">{token.token_name}</p>
-                  <p className="text-white/48 text-xs">{token.token_symbol}</p>
-                </div>
-              </div>
+                isSelected={tokenSelected?.token_id === token.token_id}
+              />
             ))}
-          </DialogDescription>
-        </DialogHeader>
+          </div>
+        </DialogDescription>
       </DialogContent>
     </Dialog>
   );
