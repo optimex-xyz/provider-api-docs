@@ -20,7 +20,7 @@ interface TokenDialogProps {
 const ALL_NETWORK_OPTION: NetworkInfo = {
   network_id: "All",
   name: "All Chains",
-  logo_uri: "/public/icons/all-network.svg",
+  logo_uri: "/icons/all-network.svg",
   symbol: "",
   type: "",
 };
