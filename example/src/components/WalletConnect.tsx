@@ -1,5 +1,4 @@
-import React from "react";
-import { toast } from "react-toastify";
+import React, { useCallback, useEffect } from "react";
 import "react-toastify/dist/ReactToastify.css";
 
 import { SUPPORTED_NETWORK, IS_TESTNET } from "../config";
@@ -10,6 +9,8 @@ import { Button } from "./ui/button";
 import { BTCIcon } from "../icons";
 import { unisatWallet } from "../wallets/UnisatWallet";
 import { LogOut } from "lucide-react";
+import { useBtcBalance } from "../hooks";
+import { ethers } from "ethers";
 
 interface WalletConnectProps {}
 
@@ -43,6 +44,8 @@ const BTCWalletSection: React.FC<BTCWalletSectionProps> = ({
   onConnect,
   onDisconnect,
 }) => {
+  const { data: btcBalance } = useBtcBalance(btcAddress);
+
   return (
     <div className="flex gap-1">
       {btcAddress && (
@@ -63,7 +66,12 @@ const BTCWalletSection: React.FC<BTCWalletSectionProps> = ({
         onClick={() => (btcAddress ? onDisconnect() : onConnect())}
         variant="outline"
       >
-        {btcAddress ? truncateAddress(btcAddress) : "Connect BTC Wallet"}
+        {btcAddress
+          ? `${truncateAddress(btcAddress)} (${ethers.formatUnits(
+              BigInt(btcBalance || 0),
+              8
+            )} ${IS_TESTNET ? "tBTC" : "BTC"})`
+          : "Connect BTC Wallet"}
         {btcAddress && <LogOut />}
       </Button>
     </div>
@@ -145,7 +153,7 @@ const EVMWalletSection = () => (
 export const WalletConnect: React.FC<WalletConnectProps> = () => {
   const { setBtcWallet, btcAddress } = useWallet();
 
-  const connectBTCWallet = async (throwError = true) => {
+  const connectBTCWallet = useCallback(async () => {
     try {
       const network = IS_TESTNET
         ? SUPPORTED_NETWORK.BTC_TESTNET
@@ -155,13 +163,14 @@ export const WalletConnect: React.FC<WalletConnectProps> = () => {
       );
       setBtcWallet(address, compressedPublicKey);
     } catch (error) {
-      if (!throwError) return;
-
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error occurred";
-      toast.error(errorMessage, TOAST_CONFIG);
+      console.warn("Error connecting BTC wallet:", error);
     }
-  };
+  }, [setBtcWallet]);
+
+  // Auto reconnect BTC wallet
+  useEffect(() => {
+    connectBTCWallet();
+  }, []);
 
   const disconnectBTCWallet = async () => {
     try {
@@ -172,11 +181,6 @@ export const WalletConnect: React.FC<WalletConnectProps> = () => {
       console.warn("Error disconnecting BTC wallet:", error);
     }
   };
-
-  // Auto reconnect BTC wallet (commented out for now)
-  // useEffect(() => {
-  //   connectBTCWallet(false);
-  // }, []);
 
   return (
     <div className="flex gap-4">

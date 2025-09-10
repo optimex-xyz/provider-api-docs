@@ -36,7 +36,7 @@ export const useGetQuote = ({
         user_refund_address,
       });
     },
-    enabled: Boolean(fromToken && toToken && amount),
+    enabled: !!fromToken && !!toToken && +amount > 0,
     staleTime: 1000 * 30, // 30 seconds
     refetchInterval: 1000 * 30, // 30 seconds
   });

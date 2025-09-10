@@ -7,6 +7,11 @@ export const SCRIPT_TIMEOUT = Number(import.meta.env.VITE_SCRIPT_TIMEOUT);
 
 export const BASE_URL = import.meta.env.VITE_OPTIMEX_BASE_URL;
 
+export const BTC_API_ENDPOINTS = {
+  mainnet: "https://mempool.space/api",
+  testnet: "https://mempool.space/testnet/api",
+};
+
 export const FEE_IN_BPS = import.meta.env.VITE_FEE_IN_BPS;
 
 export const AFFILIATE_INFO = [
@@ -48,3 +53,5 @@ export const DEFAULT_TOKENS = {
 };
 
 export const NATIVE_TOKEN_ADDRESS = "native";
+
+export const DEFAULT_SLIPPAGE = 0.75;

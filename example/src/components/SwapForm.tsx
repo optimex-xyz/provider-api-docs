@@ -20,7 +20,6 @@ interface SwapFormProps {
 export const SwapForm: React.FC<SwapFormProps> = ({ className }) => {
   const { btcAddress, evmAddress, btcPublicKey } = useWallet();
   const { data, isLoading: isTokensLoading } = useListTokens();
-
   const {
     fromToken,
     toToken,

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { DEFAULT_FEE_RATE_SETTINGS, SUPPORTED_NETWORK } from "../config";
+import type { TokenInfo } from "../services";
 
 export const truncateAddress = (
   str: string,
@@ -76,4 +77,24 @@ export const isBtcChain = (
 
 export const delay = (ms: number) => {
   return new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+export const getAmountOutAfterSlippage = ({
+  amountOut,
+  slippage,
+  toToken,
+}: {
+  amountOut: string;
+  slippage: number;
+  toToken: TokenInfo;
+}) => {
+  try {
+    const SCALE = BigInt(10 ** toToken.token_decimals);
+    const amountBN = BigInt(amountOut);
+    const factor = BigInt(Math.floor((1 - slippage / 100) * Number(SCALE)));
+    const minAmountBN = (amountBN * factor) / SCALE;
+    return minAmountBN.toString();
+  } catch {
+    return amountOut;
+  }
 };

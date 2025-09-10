@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import type { NetworkInfo, TokenInfo } from "../services/SwapService";
 import {
   Dialog,
@@ -17,6 +17,13 @@ interface TokenDialogProps {
   tokenSelected: TokenInfo | null;
 }
 
+const ALL_NETWORK_OPTION: NetworkInfo = {
+  network_id: "All",
+  name: "All Chains",
+  logo_uri: "/public/icons/all-network.svg",
+  symbol: "",
+  type: "",
+};
 const TokenItem = ({
   token,
   onSelect,
@@ -85,18 +92,12 @@ export const TokenDialog: React.FC<TokenDialogProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [selectedNetwork, setSelectedNetwork] = useState<NetworkInfo | null>(
-    null
+    ALL_NETWORK_OPTION
   );
 
-  useEffect(() => {
-    setSelectedNetwork(
-      networks.find(
-        (network) => network.network_id === tokenSelected?.network_id
-      ) || null
-    );
-  }, [networks, tokenSelected]);
-
   const listTokens = useMemo(() => {
+    if (selectedNetwork?.network_id === ALL_NETWORK_OPTION.network_id)
+      return tokens;
     return tokens.filter(
       (token) => token.network_id === selectedNetwork?.network_id
     );
@@ -115,6 +116,16 @@ export const TokenDialog: React.FC<TokenDialogProps> = ({
         </DialogHeader>
         <DialogDescription className="flex gap-4 border-t border-white/20 px-2">
           <div className="mt-2 space-y-1">
+            <NetworkItem
+              key="all"
+              network={ALL_NETWORK_OPTION}
+              onSelect={() => {
+                setSelectedNetwork(ALL_NETWORK_OPTION);
+              }}
+              isSelected={
+                selectedNetwork?.network_id === ALL_NETWORK_OPTION.network_id
+              }
+            />
             {networks.map((network) => (
               <NetworkItem
                 key={network.network_id}

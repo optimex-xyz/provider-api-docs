@@ -1,7 +1,8 @@
-import { useSendTransaction } from "wagmi";
+import { useSendTransaction, type Config } from "wagmi";
 import {
   AFFILIATE_INFO,
   CHAIN_ID,
+  DEFAULT_SLIPPAGE,
   NATIVE_TOKEN_ADDRESS,
   SCRIPT_TIMEOUT,
   SUPPORTED_NETWORK,
@@ -13,11 +14,12 @@ import Service, {
   type TokenInfo,
 } from "../services/SwapService";
 import { ethers } from "ethers";
-import { getBtcFeeRate, isBtcChain } from "../utils";
+import { getAmountOutAfterSlippage, getBtcFeeRate, isBtcChain } from "../utils";
 import { unisatWallet } from "../wallets/UnisatWallet";
 import ERC20_ABI from "../../../abis/asset-chain/ERC20.json";
 import { useWagmiSigner } from "./use-wagmi-singer";
 import { useWagmiSwitchChain } from "./use-wagmi-switch-chain";
+import type { SendTransactionMutateAsync } from "wagmi/query";
 
 interface ApproveTokenParams {
   walletAddress: string;
@@ -125,13 +127,17 @@ const sendBtcTransaction = async (
 };
 
 const sendEvmTransaction = async (
-  sendTransactionAsync: any,
+  sendTransactionAsync: SendTransactionMutateAsync<Config, unknown>,
   depositAddress: string,
   amount: bigint,
   fromToken: TokenInfo,
   payload: string
 ): Promise<string> => {
   try {
+    console.log(
+      "🚀 ~ sendEvmTransaction ~ sendTransactionAsync:",
+      CHAIN_ID[fromToken.network_id as SUPPORTED_NETWORK]
+    );
     return await sendTransactionAsync({
       value: fromToken.token_address === "native" ? amount : 0,
       to: depositAddress,
@@ -179,8 +185,11 @@ export const useConfirmSwap = () => {
       const fromUserAddress = isFromBtc ? btcAddress : evmAddress;
       const toUserAddress = isToBtc ? btcAddress : evmAddress;
 
-      if (!fromUserAddress || !toUserAddress) {
-        throw new Error("From or to wallet addresses not available");
+      if (!fromUserAddress) {
+        throw new Error("Missing from wallet address");
+      }
+      if (!toUserAddress) {
+        throw new Error("Missing to wallet address");
       }
 
       // Initiate trade
@@ -197,7 +206,11 @@ export const useConfirmSwap = () => {
         affiliate_info: AFFILIATE_INFO,
         session_id: quote?.session_id,
         amount_in: amountIn.toString(),
-        min_amount_out: quote?.best_quote_after_fees,
+        min_amount_out: getAmountOutAfterSlippage({
+          amountOut: quote?.best_quote_after_fees,
+          slippage: DEFAULT_SLIPPAGE,
+          toToken,
+        }),
         trade_timeout,
         script_timeout,
       });
@@ -241,7 +254,7 @@ export const useConfirmSwap = () => {
     } catch (error) {
       const errorMessage =
         error instanceof Error ? error.message : "Unknown error occurred";
-      throw new Error(`Swap confirmation failed: ${errorMessage}`);
+      throw new Error(`${errorMessage}`);
     }
   };
 

@@ -9,6 +9,7 @@ import { isBtcChain, truncateAddress } from "../utils";
 import { useWallet } from "../context";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { unisatWallet } from "../wallets/UnisatWallet";
+import { ChevronRight } from "lucide-react";
 
 interface TokenSelectProps {
   tokens: TokenInfo[];
@@ -71,9 +72,10 @@ export const TokenSelect: React.FC<TokenSelectProps> = ({
 
           <TokenDialog
             trigger={
-              <div className="flex gap-1 cursor-pointer">
+              <div className="flex gap-1 items-center cursor-pointer">
                 <p>{value?.token_symbol}</p>
                 <p className="text-white/48">({value?.network_name})</p>
+                <ChevronRight className="size-4" />
               </div>
             }
             tokens={tokens}
