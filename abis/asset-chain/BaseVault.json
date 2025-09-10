@@ -1,0 +1,401 @@
+[
+  {
+    "inputs": [],
+    "name": "AddressZero",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "InvalidShortString",
+    "type": "error"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "string",
+        "name": "str",
+        "type": "string"
+      }
+    ],
+    "name": "StringTooLong",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "Unauthorized",
+    "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "tradeId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "operator",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "Claimed",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "tradeId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "depositor",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "ephemeralL2Address",
+        "type": "address"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timeout",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "mpc",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "ephemeralAssetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "refundAddress",
+            "type": "address"
+          }
+        ],
+        "indexed": false,
+        "internalType": "struct IBaseVault.TradeDetail",
+        "name": "detail",
+        "type": "tuple"
+      }
+    ],
+    "name": "Deposited",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [],
+    "name": "EIP712DomainChanged",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "operator",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "newProtocol",
+        "type": "address"
+      }
+    ],
+    "name": "ProtocolUpdated",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": true,
+        "internalType": "bytes32",
+        "name": "tradeId",
+        "type": "bytes32"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "token",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "operator",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "settledAmount",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "pFeeAddress",
+        "type": "address"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "totalFeeAmount",
+        "type": "uint256"
+      }
+    ],
+    "name": "Settled",
+    "type": "event"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "tradeId",
+        "type": "bytes32"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timeout",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "mpc",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "ephemeralAssetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "refundAddress",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct IBaseVault.TradeDetail",
+        "name": "detail",
+        "type": "tuple"
+      }
+    ],
+    "name": "claim",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "eip712Domain",
+    "outputs": [
+      {
+        "internalType": "bytes1",
+        "name": "fields",
+        "type": "bytes1"
+      },
+      {
+        "internalType": "string",
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "internalType": "string",
+        "name": "version",
+        "type": "string"
+      },
+      {
+        "internalType": "uint256",
+        "name": "chainId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "verifyingContract",
+        "type": "address"
+      },
+      {
+        "internalType": "bytes32",
+        "name": "salt",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "extensions",
+        "type": "uint256[]"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "tradeId",
+        "type": "bytes32"
+      }
+    ],
+    "name": "getTradeHash",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "tradeHash",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "protocol",
+    "outputs": [
+      {
+        "internalType": "contract IProtocol",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "newProtocol",
+        "type": "address"
+      }
+    ],
+    "name": "setProtocol",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "bytes32",
+        "name": "tradeId",
+        "type": "bytes32"
+      },
+      {
+        "internalType": "uint256",
+        "name": "totalFee",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "toAddress",
+        "type": "address"
+      },
+      {
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint64",
+            "name": "timeout",
+            "type": "uint64"
+          },
+          {
+            "internalType": "address",
+            "name": "mpc",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "ephemeralAssetAddress",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "refundAddress",
+            "type": "address"
+          }
+        ],
+        "internalType": "struct IBaseVault.TradeDetail",
+        "name": "detail",
+        "type": "tuple"
+      },
+      {
+        "internalType": "bytes",
+        "name": "presign",
+        "type": "bytes"
+      },
+      {
+        "internalType": "bytes",
+        "name": "mpcSignature",
+        "type": "bytes"
+      }
+    ],
+    "name": "settlement",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]
