@@ -1,5 +1,5 @@
 import React from "react";
-import type { TokenInfo } from "../services/SwapService";
+import type { NetworkInfo, TokenInfo } from "../services/SwapService";
 import { Input } from "./ui/input";
 import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
@@ -14,6 +14,7 @@ interface TokenSelectProps {
   tokens: TokenInfo[];
   value: TokenInfo | null;
   onTokenChange: (token: TokenInfo | null) => void;
+  networks: NetworkInfo[];
   placeholder?: string;
   label: string;
   onAmountChange?: (amount: string) => void;
@@ -24,6 +25,7 @@ interface TokenSelectProps {
 
 export const TokenSelect: React.FC<TokenSelectProps> = ({
   tokens,
+  networks,
   onTokenChange,
   value,
   label,
@@ -76,6 +78,8 @@ export const TokenSelect: React.FC<TokenSelectProps> = ({
             }
             tokens={tokens}
             onSelect={onTokenChange}
+            networks={networks}
+            tokenSelected={value}
           />
         </div>
         {walletAddress ? (

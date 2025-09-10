@@ -19,7 +19,7 @@ interface SwapFormProps {
 
 export const SwapForm: React.FC<SwapFormProps> = ({ className }) => {
   const { btcAddress, evmAddress, btcPublicKey } = useWallet();
-  const { data: tokens, isLoading: isTokensLoading } = useListTokens();
+  const { data, isLoading: isTokensLoading } = useListTokens();
 
   const {
     fromToken,
@@ -32,7 +32,7 @@ export const SwapForm: React.FC<SwapFormProps> = ({ className }) => {
     isFromBtc,
     isToBtc,
     swapTokens,
-  } = useSwapForm({ tokens, btcAddress, evmAddress });
+  } = useSwapForm({ tokens: data?.tokens, btcAddress, evmAddress });
 
   const debouncedAmount = useDebounce(amount, 500);
 
@@ -103,14 +103,14 @@ export const SwapForm: React.FC<SwapFormProps> = ({ className }) => {
   };
 
   if (isTokensLoading) return <Loading message="Loading..." />;
-  if (!tokens || tokens.length === 0)
+  if (!data?.tokens || !data?.supported_networks)
     return <AppError message="No tokens available. Please try again later." />;
 
   return (
     <div className={`flex-1 w-full flex justify-center ${className || ""}`}>
       <div className="w-[32rem] mt-20 space-y-2 h-fit">
         <TokenSelect
-          tokens={tokens}
+          tokens={data?.tokens}
           value={fromToken}
           onTokenChange={setFromToken}
           label="From Token"
@@ -118,6 +118,7 @@ export const SwapForm: React.FC<SwapFormProps> = ({ className }) => {
           networkId={fromToken?.network_id ?? ""}
           walletAddress={isFromBtc ? btcAddress : evmAddress}
           amount={amount}
+          networks={data?.supported_networks}
         />
 
         <div className="flex justify-center absolute left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 bg-black/50 rounded-full p-1">
@@ -134,13 +135,14 @@ export const SwapForm: React.FC<SwapFormProps> = ({ className }) => {
         </div>
 
         <TokenSelect
-          tokens={tokens}
+          tokens={data?.tokens}
           value={toToken}
           onTokenChange={setToToken}
           label="To Token"
           amount={amountOut}
           networkId={toToken?.network_id ?? ""}
           walletAddress={isToBtc ? btcAddress : evmAddress}
+          networks={data?.supported_networks}
         />
         <Button
           size="lg"

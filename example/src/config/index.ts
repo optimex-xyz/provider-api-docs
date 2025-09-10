@@ -46,3 +46,5 @@ export const DEFAULT_TOKENS = {
   BTC: ["tBTC", "BTC"],
   ETH: ["ETH"],
 };
+
+export const NATIVE_TOKEN_ADDRESS = "native";

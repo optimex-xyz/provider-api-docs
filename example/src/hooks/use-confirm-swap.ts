@@ -2,6 +2,7 @@ import { useSendTransaction } from "wagmi";
 import {
   AFFILIATE_INFO,
   CHAIN_ID,
+  NATIVE_TOKEN_ADDRESS,
   SCRIPT_TIMEOUT,
   SUPPORTED_NETWORK,
   TRADE_TIMEOUT,
@@ -16,6 +17,7 @@ import { getBtcFeeRate, isBtcChain } from "../utils";
 import { unisatWallet } from "../wallets/UnisatWallet";
 import ERC20_ABI from "../../../abis/asset-chain/ERC20.json";
 import { useWagmiSigner } from "./use-wagmi-singer";
+import { useWagmiSwitchChain } from "./use-wagmi-switch-chain";
 
 interface ApproveTokenParams {
   walletAddress: string;
@@ -39,7 +41,8 @@ interface ConfirmSwapResult {
 
 const isNeedApprove = (fromToken: TokenInfo): boolean => {
   return (
-    fromToken.network_type === "EVM" && fromToken.token_address !== "native"
+    fromToken.network_type === "EVM" &&
+    fromToken.token_address !== NATIVE_TOKEN_ADDRESS
   );
 };
 
@@ -79,7 +82,8 @@ const approveToken = async ({
 
     if (allowance < amount) {
       const tx = await erc20Contract.approve(spenderAddress, ethers.MaxUint256);
-      await tx?.wait();
+      const receipt = await tx?.wait();
+      console.log("approveToken receipt:", receipt);
     }
 
     // Verify allowance after approval
@@ -157,8 +161,8 @@ const submitTransaction = async (
 export const useConfirmSwap = () => {
   const { btcAddress, evmAddress, btcPublicKey } = useWallet();
   const { sendTransactionAsync } = useSendTransaction();
-  const wagmiSigner = useWagmiSigner();
-
+  const { getSigner } = useWagmiSigner();
+  const { switchChain } = useWagmiSwitchChain();
   const confirmSwap = async ({
     fromToken,
     toToken,
@@ -198,8 +202,11 @@ export const useConfirmSwap = () => {
         script_timeout,
       });
 
+      if (isToBtc) {
+        await switchChain(fromToken);
+      }
       if (isNeedApprove(fromToken)) {
-        const signer = await wagmiSigner();
+        const signer = await getSigner();
         await approveToken({
           walletAddress: fromUserAddress,
           token: fromToken,
