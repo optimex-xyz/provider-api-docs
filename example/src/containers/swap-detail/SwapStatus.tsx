@@ -108,13 +108,13 @@ const DepositStep = ({
           </div>
         }
       ></StatusStep>
-      <Explorer
+      {data.user_deposit_tx && <Explorer
         label="Tx hash"
         value={data.user_deposit_tx}
         networkId={fromToken.network_id}
         type="tx"
         className="ml-6"
-      />
+      />}
     </div>
   );
 };
@@ -182,13 +182,13 @@ const ReceiveStep = ({
         </div>
       }
     >
-      <Explorer
+      {data.payment_bundle.settlement_tx && <Explorer
         label="Tx hash:"
         value={data.payment_bundle.settlement_tx}
         networkId={toToken.network_id}
         type="tx"
         className="ml-6"
-      />
+      />}
     </StatusStep>
   );
 };
