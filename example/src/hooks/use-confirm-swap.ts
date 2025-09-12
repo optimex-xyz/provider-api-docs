@@ -9,10 +9,7 @@ import {
   TRADE_TIMEOUT,
 } from "../config";
 import { useWallet } from "../context";
-import Service, {
-  type SwapQuote,
-  type TokenInfo,
-} from "../services/SwapService";
+import Service from "../services/SwapService";
 import { ethers } from "ethers";
 import { getAmountOutAfterSlippage, getBtcFeeRate, isBtcChain } from "../utils";
 import { unisatWallet } from "../wallets/UnisatWallet";
@@ -20,6 +17,7 @@ import ERC20_ABI from "../../../abis/asset-chain/ERC20.json";
 import { useWagmiSigner } from "./use-wagmi-singer";
 import { useWagmiSwitchChain } from "./use-wagmi-switch-chain";
 import type { SendTransactionMutateAsync } from "wagmi/query";
+import type { SwapQuote, TokenInfo } from "../services/type";
 
 interface ApproveTokenParams {
   walletAddress: string;

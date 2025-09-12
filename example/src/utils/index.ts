@@ -1,6 +1,7 @@
 import axios from "axios";
 import { DEFAULT_FEE_RATE_SETTINGS, SUPPORTED_NETWORK } from "../config";
-import type { TokenInfo } from "../services";
+import type { TokenInfo } from "../services/type";
+import { ethers } from "ethers";
 
 export const truncateAddress = (
   str: string,
@@ -96,5 +97,23 @@ export const getAmountOutAfterSlippage = ({
     return minAmountBN.toString();
   } catch {
     return amountOut;
+  }
+};
+
+export const formatTokenAmount = (
+  amount: string,
+  decimals: number | undefined
+): string => {
+  if (!decimals) return amount;
+  try {
+    const formatted = ethers.formatUnits(amount, decimals);
+    // Truncate to maximum 8 decimal places
+    const parts = formatted.split(".");
+    if (parts.length === 2 && parts[1].length > 8) {
+      return parts[0] + "." + parts[1].substring(0, 8);
+    }
+    return formatted;
+  } catch {
+    return amount;
   }
 };
