@@ -43,8 +43,8 @@ export const SwapRate = ({ data }: SwapRateProps) => {
         className="w-24"
       >
         <div className="flex items-center gap-2">
-          1 {data.from_token.token_id} <ArrowRightLeft className="size-4" />
-          {exchangeRate} {data.to_token.token_id}
+          1 {fromToken?.token_symbol} <ArrowRightLeft className="size-4" />
+          {exchangeRate} {toToken?.token_symbol}
         </div>
       </SkeletonWrapper>
     </Block>
