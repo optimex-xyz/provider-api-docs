@@ -5,19 +5,19 @@ import { useConfirmSwap } from "../hooks/use-confirm-swap";
 import { Button } from "./ui/button";
 import { useWallet } from "../context";
 import { toast } from "react-toastify";
-import { truncateAddress } from "../utils";
-import { BASE_URL } from "../config";
 import { useSwapForm } from "../hooks/use-swap-form";
-import { ethers } from "ethers";
 import { Loading } from "./Loading";
 import { AppError } from "./AppError";
 import { ArrowDownUp } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { formatTokenAmount } from "../utils";
 
 interface SwapFormProps {
   className?: string;
 }
 
 export const SwapForm: React.FC<SwapFormProps> = ({ className }) => {
+  const navigate = useNavigate();
   const { btcAddress, evmAddress, btcPublicKey } = useWallet();
   const { data, isLoading: isTokensLoading } = useListTokens();
   const {
@@ -49,11 +49,10 @@ export const SwapForm: React.FC<SwapFormProps> = ({ className }) => {
   });
   const amountOut =
     quote && toToken
-      ? ethers.formatUnits(quote.best_quote_after_fees, toToken.token_decimals)
+      ? formatTokenAmount(quote.best_quote_after_fees, toToken.token_decimals)
       : "0";
   const { confirmSwap } = useConfirmSwap();
   const [isSwapping, setIsSwapping] = useState(false);
-
   const handleSwap = async () => {
     if (isDisabled) return;
 
@@ -67,9 +66,7 @@ export const SwapForm: React.FC<SwapFormProps> = ({ className }) => {
       });
 
       console.log({ tradeId, txHash });
-
-      toast.success(<SwapSuccessToast tradeId={tradeId} />);
-
+      navigate(`/swap/${tradeId}`);
       resetForm();
     } catch (error) {
       console.error("Swap failed:", error);
@@ -155,20 +152,3 @@ export const SwapForm: React.FC<SwapFormProps> = ({ className }) => {
     </div>
   );
 };
-
-const SwapSuccessToast: React.FC<{ tradeId: string }> = ({ tradeId }) => (
-  <div className="font-light">
-    <h6 className="mb-2">Swap Success</h6>
-    <p>
-      View details:{" "}
-      <a
-        href={`${BASE_URL}/v1/trades/${tradeId}`}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="underline"
-      >
-        {truncateAddress(tradeId, 10, 16)}
-      </a>
-    </p>
-  </div>
-);

@@ -3,14 +3,13 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { SUPPORTED_NETWORK, IS_TESTNET } from "../config";
 import { useWallet } from "../context";
-import { truncateAddress } from "../utils";
+import { formatTokenAmount, truncateAddress } from "../utils";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Button } from "./ui/button";
 import { BTCIcon } from "../icons";
 import { unisatWallet } from "../wallets/UnisatWallet";
 import { LogOut } from "lucide-react";
 import { useBtcBalance } from "../hooks";
-import { ethers } from "ethers";
 
 interface WalletConnectProps {}
 
@@ -67,8 +66,8 @@ const BTCWalletSection: React.FC<BTCWalletSectionProps> = ({
         variant="outline"
       >
         {btcAddress
-          ? `${truncateAddress(btcAddress)} (${ethers.formatUnits(
-              BigInt(btcBalance || 0),
+          ? `${truncateAddress(btcAddress)} (${formatTokenAmount(
+              BigInt(btcBalance || 0).toString(),
               8
             )} ${IS_TESTNET ? "tBTC" : "BTC"})`
           : "Connect BTC Wallet"}
@@ -86,7 +85,7 @@ const ChainButton: React.FC<ChainButtonProps> = ({ chain, onClick }) => (
   >
     {chain.hasIcon && (
       <div
-        className="size-5 rounded-full overflow-hidden mr-1"
+        className="size-4 rounded-full overflow-hidden mr-1"
         style={{ background: chain.iconBackground }}
       >
         {chain.iconUrl && (

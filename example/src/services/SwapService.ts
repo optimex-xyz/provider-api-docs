@@ -1,94 +1,13 @@
 import axios, { AxiosError } from "axios";
 import { API_KEY, BASE_URL } from "../config";
-
-export interface SwapQuote {
-  session_id: string;
-  best_quote: string;
-  best_quote_after_fees: string;
-  protocol_fee: number;
-  pmm_finalists: Array<{
-    pmm_id: string;
-    pmm_receiving_address: string;
-  }>;
-  error?: string;
-  message?: string;
-  statusCode: number;
-}
-
-export interface TokenInfo {
-  token_id: string;
-  token_symbol: string;
-  token_decimals: number;
-  network_name: string;
-  token_address: string;
-  network_type: "BTC" | "EVM";
-  network_id: string;
-  token_logo_uri: string;
-  network_logo_uri: string;
-  token_name: string;
-  chain_id: string;
-}
-
-export interface NetworkInfo {
-  network_id: string;
-  name: string;
-  logo_uri: string;
-  symbol: string;
-  type: string;
-}
-
-export interface InitiateTradeResponse {
-  trade_id: string;
-  deposit_address: string;
-  payload: string;
-}
-
-export interface SwapTrade {
-  trade_id: string;
-  status: "pending" | "completed" | "failed";
-  inputToken: string;
-  outputToken: string;
-  inputAmount: string;
-  outputAmount: string;
-  timestamp: number;
-}
-
-interface InitTradePayload {
-  from_token_id: string;
-  to_token_id: string;
-  from_user_address: string;
-  to_user_address: string;
-  user_refund_address: string;
-  user_refund_pubkey: string;
-  creator_public_key: string;
-  from_wallet_address: string;
-  affiliate_info: Array<{
-    provider: string;
-    rate: string;
-    receiver: string;
-    network: string;
-  }>;
-  session_id: string;
-  amount_in: string;
-  min_amount_out: string;
-  trade_timeout?: number;
-  script_timeout?: number;
-}
-
-export interface IGetQuotePayload {
-  from_token_id: string;
-  to_token_id: string;
-  from_token_amount: string;
-  affiliate_fee_bps: string;
-  from_user_address: string;
-  to_user_address: string;
-  user_refund_address: string;
-}
-
-export interface IGetAvailableTokensResponse {
-  tokens: TokenInfo[];
-  supported_networks: NetworkInfo[];
-}
+import type {
+  IGetAvailableTokensResponse,
+  InitiateTradeResponse,
+  InitTradePayload,
+  ISwapDetail,
+  SwapQuote,
+} from "./type";
+import type { IGetQuotePayload } from "./type";
 
 export class SwapService {
   private readonly apiKey: string;
@@ -153,8 +72,8 @@ export class SwapService {
     return data;
   }
 
-  async getTradeStatus(tradeId: string): Promise<SwapTrade> {
-    return this.request<SwapTrade>(`/v1/trades/${tradeId}`);
+  async getTradeStatus(tradeId: string): Promise<ISwapDetail> {
+    return this.request<ISwapDetail>(`/v1/trades/${tradeId}`);
   }
 
   async getAvailableTokens(): Promise<IGetAvailableTokensResponse> {

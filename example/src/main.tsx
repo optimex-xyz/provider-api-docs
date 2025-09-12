@@ -3,7 +3,6 @@ import { createRoot } from "react-dom/client";
 import { WagmiProvider } from "wagmi";
 
 import "./index.css";
-import App from "./App.tsx";
 import { WalletProvider } from "./context/index.tsx";
 import "@rainbow-me/rainbowkit/styles.css";
 import "@rainbow-me/rainbowkit/styles.css";
@@ -22,6 +21,9 @@ import {
   sepolia,
 } from "wagmi/chains";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
+import { RouterProvider } from "react-router-dom";
+import { router } from "./Router.tsx";
+import { ToastContainer } from "react-toastify";
 
 export const wagmiConfig = getDefaultConfig({
   appName: "My RainbowKit App",
@@ -55,7 +57,13 @@ const AppWithProviders = () => (
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider>
           <WalletProvider>
-            <App />
+            <ToastContainer
+              aria-label="Toast container"
+              theme="dark"
+              position="bottom-right"
+              autoClose={20000}
+            />
+            <RouterProvider router={router} />
           </WalletProvider>
         </RainbowKitProvider>
       </QueryClientProvider>

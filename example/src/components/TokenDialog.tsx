@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import type { NetworkInfo, TokenInfo } from "../services/SwapService";
+import type { NetworkInfo, TokenInfo } from "../services/type";
 import {
   Dialog,
   DialogContent,
@@ -8,6 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "./ui/dialog";
+import { TokenNetwork } from "./TokenNetwork";
 
 interface TokenDialogProps {
   trigger: React.ReactNode;
@@ -35,18 +36,12 @@ const TokenItem = ({
 }) => {
   return (
     <div
-      className={`flex p-2 items-center gap-2 hover:bg-white/9 rounded-sm cursor-pointer ${
+      className={`flex p-2 items-center gap-4 hover:bg-white/9 rounded-sm cursor-pointer ${
         isSelected ? "bg-white/9" : ""
       }`}
       onClick={() => onSelect(token)}
     >
-      <img
-        src={token.token_logo_uri}
-        alt={token.token_symbol}
-        width={32}
-        height={32}
-        className="rounded-full"
-      />
+      <TokenNetwork token={token} />
       <div>
         <p className="text-white">{token.token_name}</p>
         <p className="text-white/48 text-xs">{token.token_symbol}</p>

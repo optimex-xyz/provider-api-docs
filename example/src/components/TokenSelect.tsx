@@ -1,5 +1,5 @@
 import React from "react";
-import type { NetworkInfo, TokenInfo } from "../services/SwapService";
+import type { NetworkInfo, TokenInfo } from "../services/type";
 import { Input } from "./ui/input";
 import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
@@ -10,6 +10,8 @@ import { useWallet } from "../context";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { unisatWallet } from "../wallets/UnisatWallet";
 import { ChevronRight } from "lucide-react";
+import { TokenNetwork } from "./TokenNetwork";
+import { Block } from "./Block";
 
 interface TokenSelectProps {
   tokens: TokenInfo[];
@@ -59,17 +61,11 @@ export const TokenSelect: React.FC<TokenSelectProps> = ({
     }
   };
   return (
-    <div className="flex flex-col gap-6 bg-white/4 p-4 rounded-sm">
+    <Block className="flex flex-col gap-6">
       <label className="text-white/48 text-sm">{label}</label>
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <img
-            src={value?.token_logo_uri}
-            alt={value?.token_symbol}
-            width={32}
-            height={32}
-          />
-
+          <TokenNetwork token={value!} />
           <TokenDialog
             trigger={
               <div className="flex gap-1 items-center cursor-pointer">
@@ -109,6 +105,6 @@ export const TokenSelect: React.FC<TokenSelectProps> = ({
           onChange={(e) => onAmountChange?.(e.target.value)}
         />
       </div>
-    </div>
+    </Block>
   );
 };
