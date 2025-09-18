@@ -11,9 +11,13 @@ const API_ENDPOINTS = {
 };
 
 const params = new URLSearchParams(window.location.search);
-const env = (params.get("env") as keyof typeof API_ENDPOINTS) ?? "stg";
-
-export const BASE_URL = API_ENDPOINTS[env];
+const env = params.get("env") as keyof typeof API_ENDPOINTS;
+if (env) {
+  localStorage.setItem("env", env);
+}
+const localEnv = localStorage.getItem("env");
+export const BASE_URL =
+  API_ENDPOINTS[localEnv ? (localEnv as keyof typeof API_ENDPOINTS) : env];
 
 export const BTC_API_ENDPOINTS = {
   mainnet: "https://mempool.space/api",

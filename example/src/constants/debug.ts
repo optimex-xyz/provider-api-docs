@@ -3,10 +3,10 @@ export const IS_TRADE_TIMEOUT = !!new URLSearchParams(
 ).get("timeout");
 export const IS_ACROSS_EVM_REFUND = !!new URLSearchParams(
   window.location.search
-).get("acrossToEvmRefund");
+).get("acrossEvmRefund");
 export const IS_ACROSS_BTC_REFUND = !!new URLSearchParams(
   window.location.search
-).get("acrossToBtcRefund");
+).get("acrossBtcToEvmRefundToAdmin");
 export const IS_ACROSS_REFUND_FAIL = !!new URLSearchParams(
   window.location.search
-).get("acrossRefundFail");
+).get("acrossEvmToBtcRefundToAdmin");

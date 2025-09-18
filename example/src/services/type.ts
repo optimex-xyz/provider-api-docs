@@ -60,10 +60,8 @@ export interface InitTradePayload {
   min_amount_out: string;
   trade_timeout?: number;
   script_timeout?: number;
-  test_setting?: {
-    across_to_btc_refund?: string;
-    across_to_refund_fail?: string;
-  };
+  across_btc_refund?: string;
+  across_refund_fail?: string;
 }
 
 export interface IGetQuotePayload {

@@ -6,7 +6,7 @@ import {
 } from "../../services/type";
 import { useFindToken } from "../../hooks";
 import { Explorer } from "../../components/Explorer";
-import { CircleCheckBig, RefreshCw } from "lucide-react";
+import { CircleCheckBig, CircleX, RefreshCw } from "lucide-react";
 import { formatTokenAmount } from "../../utils";
 import { Block } from "../../components";
 
@@ -44,6 +44,7 @@ interface StatusStepProps {
   isInProgress: boolean;
   title: string | React.ReactNode;
   children?: React.ReactNode;
+  isFailed?: boolean;
 }
 
 const StatusStep = ({
@@ -51,12 +52,15 @@ const StatusStep = ({
   isInProgress,
   title,
   children,
+  isFailed,
 }: StatusStepProps) => {
   return (
     <div className="space-y-2">
       <div className="flex gap-2 items-center">
         {isCompleted ? (
           <CircleCheckBig className="size-4 text-green-500" />
+        ) : isFailed ? (
+          <CircleX className="size-4 text-red-500" />
         ) : (
           <RefreshCw
             className={`size-4 text-orange-500 ${
@@ -108,13 +112,15 @@ const DepositStep = ({
           </div>
         }
       ></StatusStep>
-      {data.user_deposit_tx && <Explorer
-        label="Tx hash"
-        value={data.user_deposit_tx}
-        networkId={fromToken.network_id}
-        type="tx"
-        className="ml-6"
-      />}
+      {data.user_deposit_tx && (
+        <Explorer
+          label="Tx hash"
+          value={data.user_deposit_tx}
+          networkId={fromToken.network_id}
+          type="tx"
+          className="ml-6"
+        />
+      )}
     </div>
   );
 };
@@ -182,13 +188,15 @@ const ReceiveStep = ({
         </div>
       }
     >
-      {data.payment_bundle.settlement_tx && <Explorer
-        label="Tx hash:"
-        value={data.payment_bundle.settlement_tx}
-        networkId={toToken.network_id}
-        type="tx"
-        className="ml-6"
-      />}
+      {data.payment_bundle.settlement_tx && (
+        <Explorer
+          label="Tx hash:"
+          value={data.payment_bundle.settlement_tx}
+          networkId={toToken.network_id}
+          type="tx"
+          className="ml-6"
+        />
+      )}
     </StatusStep>
   );
 };
@@ -199,6 +207,7 @@ const FailedStep = () => {
       <StatusStep
         isCompleted={false}
         isInProgress={false}
+        isFailed={true}
         title="Transaction Failed"
       />
     </div>

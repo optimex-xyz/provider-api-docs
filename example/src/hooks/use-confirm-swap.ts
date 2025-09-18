@@ -218,10 +218,8 @@ export const useConfirmSwap = () => {
         }),
         trade_timeout,
         script_timeout,
-        test_setting: {
-          across_to_btc_refund: IS_ACROSS_BTC_REFUND ? "1" : "",
-          across_to_refund_fail: IS_ACROSS_REFUND_FAIL ? "1" : "",
-        },
+        across_btc_refund: IS_ACROSS_BTC_REFUND ? "1" : "",
+        across_refund_fail: IS_ACROSS_REFUND_FAIL ? "1" : "",
       });
 
       if (isToBtc) {
