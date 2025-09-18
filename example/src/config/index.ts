@@ -11,7 +11,7 @@ const API_ENDPOINTS = {
 };
 
 const params = new URLSearchParams(window.location.search);
-const env = params.get("env") as keyof typeof API_ENDPOINTS;
+const env = (params.get("env") as keyof typeof API_ENDPOINTS) || "stg";
 if (env) {
   localStorage.setItem("env", env);
 }
