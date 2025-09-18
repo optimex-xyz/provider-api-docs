@@ -5,7 +5,15 @@ export const API_KEY = import.meta.env.VITE_OPTIMEX_API_KEY;
 export const TRADE_TIMEOUT = Number(import.meta.env.VITE_TRADE_TIMEOUT);
 export const SCRIPT_TIMEOUT = Number(import.meta.env.VITE_SCRIPT_TIMEOUT);
 
-export const BASE_URL = import.meta.env.VITE_OPTIMEX_BASE_URL;
+const API_ENDPOINTS = {
+  dev: "https://provider-dev.bitdex.xyz",
+  stg: "https://provider-stg.bitdex.xyz",
+};
+
+const params = new URLSearchParams(window.location.search);
+const env = (params.get("env") as keyof typeof API_ENDPOINTS) ?? "stg";
+
+export const BASE_URL = API_ENDPOINTS[env];
 
 export const BTC_API_ENDPOINTS = {
   mainnet: "https://mempool.space/api",

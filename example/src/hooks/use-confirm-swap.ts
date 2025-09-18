@@ -18,6 +18,11 @@ import { useWagmiSigner } from "./use-wagmi-singer";
 import { useWagmiSwitchChain } from "./use-wagmi-switch-chain";
 import type { SendTransactionMutateAsync } from "wagmi/query";
 import type { SwapQuote, TokenInfo } from "../services/type";
+import {
+  IS_ACROSS_BTC_REFUND,
+  IS_ACROSS_REFUND_FAIL,
+  IS_TRADE_TIMEOUT,
+} from "../constants/debug";
 
 interface ApproveTokenParams {
   walletAddress: string;
@@ -51,9 +56,15 @@ const getTradeTimeoutTimestamp = (): {
   script_timeout: number;
 } => {
   const now = Math.floor(Date.now() / 1000);
+  const tradeTimeout = IS_TRADE_TIMEOUT
+    ? now + 20 * 60
+    : now + TRADE_TIMEOUT * 60;
+  const scriptTimeout = IS_TRADE_TIMEOUT
+    ? now + 45 * 60
+    : now + SCRIPT_TIMEOUT * 60;
   return {
-    trade_timeout: now + TRADE_TIMEOUT * 60,
-    script_timeout: now + SCRIPT_TIMEOUT * 60,
+    trade_timeout: tradeTimeout,
+    script_timeout: scriptTimeout,
   };
 };
 
@@ -132,10 +143,6 @@ const sendEvmTransaction = async (
   payload: string
 ): Promise<string> => {
   try {
-    console.log(
-      "🚀 ~ sendEvmTransaction ~ sendTransactionAsync:",
-      CHAIN_ID[fromToken.network_id as SUPPORTED_NETWORK]
-    );
     return await sendTransactionAsync({
       value: fromToken.token_address === "native" ? amount : 0,
       to: depositAddress,
@@ -211,6 +218,10 @@ export const useConfirmSwap = () => {
         }),
         trade_timeout,
         script_timeout,
+        test_setting: {
+          across_to_btc_refund: IS_ACROSS_BTC_REFUND ? "1" : "",
+          across_to_refund_fail: IS_ACROSS_REFUND_FAIL ? "1" : "",
+        },
       });
 
       if (isToBtc) {

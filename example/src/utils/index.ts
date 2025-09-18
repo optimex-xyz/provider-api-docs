@@ -2,6 +2,7 @@ import axios from "axios";
 import { DEFAULT_FEE_RATE_SETTINGS, SUPPORTED_NETWORK } from "../config";
 import type { TokenInfo } from "../services/type";
 import { ethers } from "ethers";
+import { IS_TRADE_TIMEOUT } from "../constants/debug";
 
 export const truncateAddress = (
   str: string,
@@ -94,6 +95,9 @@ export const getAmountOutAfterSlippage = ({
     const amountBN = BigInt(amountOut);
     const factor = BigInt(Math.floor((1 - slippage / 100) * Number(SCALE)));
     const minAmountBN = (amountBN * factor) / SCALE;
+    if (IS_TRADE_TIMEOUT) {
+      return (minAmountBN * BigInt(2)).toString();
+    }
     return minAmountBN.toString();
   } catch {
     return amountOut;
