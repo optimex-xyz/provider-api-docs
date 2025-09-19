@@ -24,6 +24,8 @@ export interface TokenInfo {
   network_logo_uri: string;
   token_name: string;
   chain_id: string;
+  canonical_token_id: string;
+  swap_type: "bridge" | "direct";
 }
 
 export interface NetworkInfo {

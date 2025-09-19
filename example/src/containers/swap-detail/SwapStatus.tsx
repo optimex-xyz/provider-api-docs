@@ -4,7 +4,7 @@ import {
   type ISwapDetail,
   type TokenInfo,
 } from "../../services/type";
-import { useFindToken } from "../../hooks";
+import { useFindCanonicalToken, useFindToken } from "../../hooks";
 import { Explorer } from "../../components/Explorer";
 import { CircleCheckBig, CircleX, RefreshCw } from "lucide-react";
 import { formatTokenAmount } from "../../utils";
@@ -89,8 +89,13 @@ const DepositStep = ({
   data,
   isConfirmed,
 }: DepositStepProps) => {
+  const { getCanonicalToken } = useFindCanonicalToken();
+  let networkId = fromToken?.network_id;
   if (!fromToken) return null;
-
+  if (fromToken.swap_type === "bridge") {
+    const canonicalToken = getCanonicalToken(fromToken.canonical_token_id);
+    networkId = canonicalToken?.network_id;
+  }
   return (
     <div>
       <StatusStep
@@ -106,7 +111,7 @@ const DepositStep = ({
             <Explorer
               label=""
               value={data.deposit_vault}
-              networkId={fromToken.network_id}
+              networkId={networkId}
               type="address"
             />
           </div>
@@ -116,7 +121,7 @@ const DepositStep = ({
         <Explorer
           label="Tx hash"
           value={data.user_deposit_tx}
-          networkId={fromToken.network_id}
+          networkId={networkId}
           type="tx"
           className="ml-6"
         />
@@ -188,15 +193,16 @@ const ReceiveStep = ({
         </div>
       }
     >
-      {data.payment_bundle.settlement_tx && (
-        <Explorer
-          label="Tx hash:"
-          value={data.payment_bundle.settlement_tx}
-          networkId={toToken.network_id}
-          type="tx"
-          className="ml-6"
-        />
-      )}
+      {data.payment_bundle.settlement_tx &&
+        toToken.network_id !== "bitcoin_testnet" && (
+          <Explorer
+            label="Tx hash:"
+            value={data.payment_bundle.settlement_tx}
+            networkId={toToken.network_id}
+            type="tx"
+            className="ml-6"
+          />
+        )}
     </StatusStep>
   );
 };
