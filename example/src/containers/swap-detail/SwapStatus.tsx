@@ -193,16 +193,15 @@ const ReceiveStep = ({
         </div>
       }
     >
-      {data.payment_bundle.settlement_tx &&
-        toToken.network_id !== "bitcoin_testnet" && (
-          <Explorer
-            label="Tx hash:"
-            value={data.payment_bundle.settlement_tx}
-            networkId={toToken.network_id}
-            type="tx"
-            className="ml-6"
-          />
-        )}
+      {data.payment_bundle.settlement_tx && (
+        <Explorer
+          label="Tx hash:"
+          value={data.payment_bundle.settlement_tx}
+          networkId={toToken.network_id}
+          type="tx"
+          className="ml-6"
+        />
+      )}
     </StatusStep>
   );
 };
