@@ -52,23 +52,21 @@ const root = createRoot(rootElement);
 
 // Wrap the app with all providers
 const AppWithProviders = () => (
-  <StrictMode>
-    <WagmiProvider config={wagmiConfig}>
-      <QueryClientProvider client={queryClient}>
-        <RainbowKitProvider>
-          <WalletProvider>
-            <ToastContainer
-              aria-label="Toast container"
-              theme="dark"
-              position="bottom-right"
-              autoClose={20000}
-            />
-            <RouterProvider router={router} />
-          </WalletProvider>
-        </RainbowKitProvider>
-      </QueryClientProvider>
-    </WagmiProvider>
-  </StrictMode>
+  <WagmiProvider config={wagmiConfig}>
+    <QueryClientProvider client={queryClient}>
+      <RainbowKitProvider>
+        <WalletProvider>
+          <ToastContainer
+            aria-label="Toast container"
+            theme="dark"
+            position="bottom-right"
+            autoClose={20000}
+          />
+          <RouterProvider router={router} />
+        </WalletProvider>
+      </RainbowKitProvider>
+    </QueryClientProvider>
+  </WagmiProvider>
 );
 
 root.render(<AppWithProviders />);

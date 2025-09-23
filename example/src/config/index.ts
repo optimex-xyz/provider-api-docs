@@ -1,4 +1,9 @@
-export const IS_TESTNET = import.meta.env.VITE_IS_TESTNET === "true";
+export const IS_MAINNET =
+  new URLSearchParams(window.location.search).get("env" as string) ===
+    "sub_wallet" || localStorage.getItem("env") === "sub_wallet";
+
+export const IS_TESTNET =
+  import.meta.env.VITE_IS_TESTNET === "true" && !IS_MAINNET;
 
 export const API_KEY = import.meta.env.VITE_OPTIMEX_API_KEY;
 

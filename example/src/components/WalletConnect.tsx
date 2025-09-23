@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect } from "react";
 import "react-toastify/dist/ReactToastify.css";
 
-import { SUPPORTED_NETWORK, IS_TESTNET } from "../config";
+import { SUPPORTED_NETWORK, IS_TESTNET, IS_MAINNET } from "../config";
 import { useWallet } from "../context";
 import { formatTokenAmount, truncateAddress } from "../utils";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
@@ -154,9 +154,10 @@ export const WalletConnect: React.FC<WalletConnectProps> = () => {
 
   const connectBTCWallet = useCallback(async () => {
     try {
-      const network = IS_TESTNET
-        ? SUPPORTED_NETWORK.BTC_TESTNET
-        : SUPPORTED_NETWORK.BTC;
+      const network = IS_MAINNET
+        ? SUPPORTED_NETWORK.BTC
+        : SUPPORTED_NETWORK.BTC_TESTNET;
+      console.log("🚀 ~ WalletConnect ~ network:", network);
       const { address, compressedPublicKey = "" } = await unisatWallet.connect(
         network
       );
