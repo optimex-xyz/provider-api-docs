@@ -8,6 +8,7 @@ export const SCRIPT_TIMEOUT = Number(import.meta.env.VITE_SCRIPT_TIMEOUT);
 const API_ENDPOINTS = {
   dev: "https://provider-dev.bitdex.xyz",
   stg: "https://provider-stg.bitdex.xyz",
+  sub_wallet: "https://subwallet-provider.optimex.xyz",
 };
 
 const params = new URLSearchParams(window.location.search);
