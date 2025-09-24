@@ -5,13 +5,14 @@ import { Separator } from "./ui/separator";
 import { Button } from "./ui/button";
 import { TokenDialog } from "./TokenDialog";
 import { IS_TESTNET, SUPPORTED_NETWORK } from "../config";
-import { isBtcChain, truncateAddress } from "../utils";
+import { formatUSD, isBtcChain, truncateAddress } from "../utils";
 import { useWallet } from "../context";
 import { useConnectModal } from "@rainbow-me/rainbowkit";
 import { unisatWallet } from "../wallets/UnisatWallet";
 import { ChevronRight } from "lucide-react";
 import { TokenNetwork } from "./TokenNetwork";
 import { Block } from "./Block";
+import { useTokenPrice } from "../hooks/use-token-price";
 
 interface TokenSelectProps {
   tokens: TokenInfo[];
@@ -39,6 +40,9 @@ export const TokenSelect: React.FC<TokenSelectProps> = ({
 }) => {
   const { setBtcWallet } = useWallet();
   const { openConnectModal } = useConnectModal();
+  const { data: tokenPrice } = useTokenPrice({
+    tokenSymbol: value?.token_symbol || "",
+  });
   const handleBTCConnect = async () => {
     const network = IS_TESTNET
       ? SUPPORTED_NETWORK.BTC_TESTNET
@@ -104,6 +108,11 @@ export const TokenSelect: React.FC<TokenSelectProps> = ({
           className="dark:text-xl border-none outline-none focus-visible:ring-0 dark:bg-transparent"
           onChange={(e) => onAmountChange?.(e.target.value)}
         />
+        {tokenPrice && amount && (
+          <p className="text-white/48 text-sm ml-2">
+            {formatUSD((+amount * tokenPrice.current_price).toString())}
+          </p>
+        )}
       </div>
     </Block>
   );

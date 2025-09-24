@@ -121,3 +121,16 @@ export const formatTokenAmount = (
     return amount;
   }
 };
+
+export const formatUSD = (
+  amount: string,
+  options: { prefix?: string; showApproximateSign?: boolean } = {}
+): string => {
+  const { prefix = "$", showApproximateSign = true } = options;
+  const num = parseFloat(amount);
+  if (num === 0) return `${prefix}0.00`;
+  if (num < 0.01) {
+    return num ? `<${prefix}0.01` : `${prefix}0`;
+  }
+  return `${showApproximateSign ? "~" : ""}${prefix}${num}`;
+};

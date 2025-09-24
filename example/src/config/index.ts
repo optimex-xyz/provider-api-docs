@@ -16,6 +16,12 @@ const API_ENDPOINTS = {
   sub_wallet: "https://subwallet-provider.optimex.xyz",
 };
 
+export const BE_API_ENDPOINTS = {
+  dev: "https://api-dev.bitdex.xyz",
+  stg: "https://api-stg.bitdex.xyz",
+  sub_wallet: "https://api.optimex.xyz",
+};
+
 const params = new URLSearchParams(window.location.search);
 let env = params.get("env") as keyof typeof API_ENDPOINTS;
 if (env) {
@@ -25,6 +31,11 @@ const localEnv = localStorage.getItem("env");
 
 export const BASE_URL =
   API_ENDPOINTS[localEnv ? (localEnv as keyof typeof API_ENDPOINTS) : "stg"];
+
+export const BE_BASE_URL =
+  BE_API_ENDPOINTS[
+    localEnv ? (localEnv as keyof typeof BE_API_ENDPOINTS) : "stg"
+  ];
 
 export const BTC_API_ENDPOINTS = {
   mainnet: "https://mempool.space/api",
