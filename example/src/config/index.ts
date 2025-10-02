@@ -39,7 +39,7 @@ export const BE_BASE_URL =
 
 export const BTC_API_ENDPOINTS = {
   mainnet: "https://mempool.space/api",
-  testnet: "https://mempool.space/testnet/api",
+  testnet: "https://mempool.space/testnet4/api",
 };
 
 export const FEE_IN_BPS = import.meta.env.VITE_FEE_IN_BPS;

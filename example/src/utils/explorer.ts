@@ -2,7 +2,7 @@ const EXPLORER_URL = {
   ethereum: "https://etherscan.io",
   ethereum_sepolia: "https://sepolia.etherscan.io",
   bitcoin: "https://mempool.space",
-  bitcoin_testnet: "https://mempool.space/testnet",
+  bitcoin_testnet: "https://mempool.space/testnet4",
   base: "https://basescan.org",
   base_sepolia: "https://sepolia.basescan.org",
   optimism: "https://optimistic.etherscan.io",

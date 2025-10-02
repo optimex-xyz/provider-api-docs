@@ -14,19 +14,23 @@ export const SwapRate = ({ data }: SwapRateProps) => {
     data.from_token.token_id,
     data.from_token.chain
   );
+  console.log("🚀 ~ SwapRate ~ fromToken:", fromToken);
   const { data: toToken } = useFindToken(
     data.to_token.token_id,
     data.to_token.chain
   );
+  // console.log("🚀 ~ SwapRate ~ toToken:", toToken);
   const exchangeRate = useMemo(() => {
     const _amountIn = +ethers.formatUnits(
       data.amount_before_fees || data.amount_after_fees,
       fromToken?.token_decimals
     );
+
     const _amountOut = +ethers.formatUnits(
       data.best_indicative_quote,
       toToken?.token_decimals
     );
+    console.log("🚀 ~ SwapRate ~ _amountOut:", _amountOut);
     const rate = _amountOut / _amountIn;
     return rate;
   }, [

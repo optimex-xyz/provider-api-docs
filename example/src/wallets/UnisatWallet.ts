@@ -65,6 +65,12 @@ export class UnisatWallet {
       await provider.switchNetwork(targetNetwork);
       accounts = await provider.requestAccounts();
     }
+    if (networkId === SUPPORTED_NETWORK.BTC_TESTNET) {
+      const currentChain = await provider.getChain();
+      if (currentChain.enum !== "BITCOIN_TESTNET4") {
+        await provider.switchChain("BITCOIN_TESTNET4");
+      }
+    }
 
     const publicKey = await provider.getPublicKey();
     this.connectedAddresses[networkId] = accounts[0];
