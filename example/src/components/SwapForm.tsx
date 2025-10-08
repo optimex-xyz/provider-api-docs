@@ -46,6 +46,7 @@ export const SwapForm: React.FC<SwapFormProps> = ({ className }) => {
     from_user_address: isFromBtc ? btcAddress : evmAddress,
     to_user_address: isFromBtc ? evmAddress : btcAddress,
     user_refund_address: isFromBtc ? btcPublicKey : evmAddress,
+    user_refund_pubkey: isFromBtc ? btcPublicKey : evmAddress,
   });
   const amountOut =
     quote && toToken

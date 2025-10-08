@@ -11,6 +11,7 @@ export const useGetQuote = ({
   from_user_address,
   to_user_address,
   user_refund_address,
+  user_refund_pubkey,
 }: {
   fromToken: TokenInfo | null;
   toToken: TokenInfo | null;
@@ -18,6 +19,7 @@ export const useGetQuote = ({
   from_user_address: string;
   to_user_address: string;
   user_refund_address: string;
+  user_refund_pubkey: string;
 }) => {
   return useQuery<SwapQuote | null, Error>({
     queryKey: ["quote", fromToken?.token_id, toToken?.token_id, amount],
@@ -34,6 +36,7 @@ export const useGetQuote = ({
         from_user_address,
         to_user_address,
         user_refund_address,
+        user_refund_pubkey,
       });
     },
     enabled: !!fromToken && !!toToken && +amount > 0,

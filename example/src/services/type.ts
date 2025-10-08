@@ -74,6 +74,7 @@ export interface IGetQuotePayload {
   from_user_address: string;
   to_user_address: string;
   user_refund_address: string;
+  user_refund_pubkey: string;
 }
 
 export interface IGetAvailableTokensResponse {
