@@ -11,6 +11,22 @@ x-api-key: your_api_key
 
 ### Base URLs
 
+### Multi-Chain Support
+
+Optimex supports multiple blockchain networks including:
+- **Ethereum Mainnet**
+- **Base**
+- **Arbitrum**
+- **BSC (Binance Smart Chain)**
+- And other EVM-compatible chains
+
+**IMPORTANT**: When sending transactions, you must:
+1. Select the correct RPC endpoint that matches the chain you're trading on
+2. Ensure your wallet is connected to the same network as the `from_token`
+3. Verify the network configuration before submitting transactions
+
+Example: If trading from Ethereum USDT, your wallet must be connected to Ethereum mainnet RPC. If trading from Base USDC, connect to Base network RPC.
+
 ### Required Trading Flow
 
 The following sequence diagram illustrates the complete trading flow:
@@ -73,14 +89,19 @@ POST /v1/trades/initiate
 - Returns trade details and deposit information
 
 #### Step 4: Token Operations
+
+**⚠️ Network Configuration**: Before submitting any transaction, ensure your wallet is connected to the correct blockchain network (RPC endpoint) that matches your `from_token` network. Mismatched networks will result in transaction failures.
+
 ##### 4a. Token Approval (if needed)
 - Check need_approve from trade initiation response
 - If true, submit approval transaction with provided approve_address and approve_payload
+- **Ensure wallet RPC matches the token's network**
 
 ##### 4b. Send Tokens
 - Submit deposit transaction using the deposit_address and amount
 - For native tokens: Include value in transaction
 - For ERC20 tokens: Set value to 0, tokens transferred through contract call
+- **Verify you're connected to the correct network RPC before sending**
 
 #### Step 5: Submit Transaction ID (Optional)
 ```http
@@ -365,17 +386,22 @@ to_token: string      // Destination token identifier (e.g., "BTC")
 // Get quote every 60 seconds while user is deciding
 const getQuote = async () => {
   const quote = await api.post('/v1/solver/indicative-quote', {
-    from_token_id: "BTC",
-    to_token_id: "ETH",
-    from_token_amount: "10000000000000000", // 0.01 ETH in wei
+    from_token_id: "ethereum_USDT", // Example: Ethereum USDT
+    to_token_id: "BTC",
+    from_token_amount: "1000000", // 1 USDT (6 decimals)
     affiliate_fee_bps: "25" // Optional: 0.25% affiliate fee
   });
   return quote.data;
 };
 
 // Initialize trade once user confirms
-const initiateTrade = async (quoteData) => {
+const initiateTrade = async (quoteData, fromTokenInfo) => {
   const now = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+
+  // IMPORTANT: Ensure wallet is connected to correct network
+  const requiredChainId = getChainIdFromNetwork(fromTokenInfo.network_id); // e.g., "ethereum" -> 1, "base" -> 8453
+  await ensureCorrectNetwork(requiredChainId);
+
   const trade = await api.post('/v1/trades/initiate', {
     session_id: quoteData.session_id,
     from_user_address: "0x19ce4de99ce88bc4a759e8dbdec42724eecb666f", // EVM address
@@ -383,7 +409,7 @@ const initiateTrade = async (quoteData) => {
     user_refund_address: "0x19ce4de99ce88bc4a759e8dbdec42724eecb666f", // EVM address for refunds
     user_refund_pubkey: "0x19ce4de99ce88bc4a759e8dbdec42724eecb666f", // Same as refund address for EVM
     creator_public_key: "0x19ce4de99ce88bc4a759e8dbdec42724eecb666f", // Compressed public key
-    amount_in: "10000000000000000", // 0.01 ETH in wei
+    amount_in: "1000000", // 1 USDT (6 decimals)
     min_amount_out: quoteData.best_quote,
     trade_timeout: now + 7200, // Current timestamp + 2 hours
     script_timeout: now + 86400, // Current timestamp + 24 hours
@@ -398,10 +424,13 @@ const initiateTrade = async (quoteData) => {
     ]
   });
 
+  // Verify network before sending transaction
+  await ensureCorrectNetwork(requiredChainId);
+
   // Send the tokens
   const depositTx = await wallet.sendTransaction({
     to: trade.data.deposit_address,
-    value: trade.data.amount_in, // For native tokens
+    value: fromTokenInfo.token_address === "native" ? trade.data.amount_in : "0", // Value only for native tokens
     data: trade.data.payload // For EVM tokens
   });
 
@@ -411,6 +440,36 @@ const initiateTrade = async (quoteData) => {
   });
 
   return depositTx;
+};
+
+// Helper function to ensure correct network connection
+const ensureCorrectNetwork = async (requiredChainId: number) => {
+  const provider = new ethers.BrowserProvider(window.ethereum);
+  const network = await provider.getNetwork();
+
+  if (Number(network.chainId) !== requiredChainId) {
+    try {
+      // Request network switch
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: `0x${requiredChainId.toString(16)}` }],
+      });
+    } catch (error) {
+      throw new Error(`Please switch to the correct network (Chain ID: ${requiredChainId})`);
+    }
+  }
+};
+
+// Helper function to map network_id to chain ID
+const getChainIdFromNetwork = (networkId: string): number => {
+  const chainMap: Record<string, number> = {
+    'ethereum': 1,
+    'base': 8453,
+    'arbitrum': 42161,
+    'bsc': 56,
+    // Add other supported networks
+  };
+  return chainMap[networkId] || 1;
 };
 ```
 
